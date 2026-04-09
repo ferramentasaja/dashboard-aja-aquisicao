@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Comercial — AJA Educação</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:       #F4F4F6;
+    --white:    #FFFFFF;
+    --border:   #E2E2E8;
+    --text:     #111118;
+    --muted:    #6B6B80;
+    --faint:    #AAAABC;
+    --green:    #1DB86A;
+    --green-bg: #E8F9F0;
+    --red:      #E03E3E;
+    --red-bg:   #FDE8E8;
+    --header:   #0D0D0F;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 13px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--header);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 10px; }
+  .logo-img { width: 28px; height: 28px; object-fit: contain; filter: brightness(0) invert(1); }
+  .logo-text { font-size: 17px; font-weight: 600; color: #FFFFFF; letter-spacing: 0.05em; }
+  .header-title { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85); }
+  .header-right { text-align: right; }
+  .period-badge {
+    display: inline-block; font-size: 11px; color: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.1); border: 0.5px solid rgba(255,255,255,0.2);
+    border-radius: 5px; padding: 3px 10px; margin-bottom: 2px;
+  }
+  .header-meta { font-size: 10px; color: rgba(255,255,255,0.4); }
+
+  /* ── Content ── */
+  .content { padding: 20px 24px 32px; }
+
+  /* ── Filters ── */
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  .filter-pill {
+    font-size: 11px; color: var(--muted);
+    background: var(--white); border: 0.5px solid var(--border);
+    border-radius: 5px; padding: 4px 10px; cursor: default;
+  }
+  .filter-pill::after { content: ' ▾'; font-size: 9px; opacity: 0.5; }
+
+  /* ── Section label ── */
+  .section-label {
+    font-size: 10px; color: var(--faint);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* ── Card base ── */
+  .card {
+    background: var(--white);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .card-label {
+    font-size: 11px; color: var(--muted);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .card-label-icon {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: var(--faint); flex-shrink: 0;
+  }
+  .card-value { font-size: 26px; font-weight: 500; color: var(--text); line-height: 1.1; margin-bottom: 6px; }
+  .card-value.sm { font-size: 20px; }
+  .delta { font-size: 11px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+  .badge-up   { background: var(--green-bg); color: var(--green); padding: 2px 6px; border-radius: 4px; }
+  .badge-down { background: var(--red-bg);   color: var(--red);   padding: 2px 6px; border-radius: 4px; }
+  .badge-neutral { background: #F0F0F4; color: var(--muted); padding: 2px 6px; border-radius: 4px; }
+  .delta-suffix { font-size: 11px; color: var(--muted); font-weight: 400; }
+  .card-footer {
+    font-size: 10px; color: var(--faint);
+    padding-top: 8px; margin-top: 8px;
+    border-top: 0.5px solid var(--border);
+  }
+
+  /* ── Grids ── */
+  .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-bottom: 8px; }
+  .grid3 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.7fr) minmax(0,1.1fr); gap: 8px; margin-bottom: 8px; }
+
+  /* ── NPS ── */
+  .nps-score { font-size: 38px; font-weight: 500; color: var(--text); margin-bottom: 10px; }
+  .nps-score span { font-size: 14px; color: var(--muted); font-weight: 400; }
+  .nps-track {
+    background: var(--bg); border-radius: 3px; height: 7px;
+    overflow: hidden; margin-bottom: 4px;
+    border: 0.5px solid var(--border);
+  }
+  .nps-fill { height: 100%; background: var(--green); border-radius: 3px; }
+  .nps-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--faint); margin-bottom: 8px; }
+  .nps-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .nps-meta-badge {
+    background: var(--red-bg); color: var(--red);
+    font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 4px;
+  }
+
+  /* ── Funil ── */
+  .funil-outer { display: flex; gap: 14px; }
+  .funil-pyramid { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; }
+  .funil-layer {
+    text-align: center; padding: 10px 8px; border-radius: 5px;
+  }
+  .funil-layer-label { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+  .funil-layer-value { font-size: 17px; font-weight: 500; color: var(--text); }
+  .funil-rates {
+    display: flex; flex-direction: column;
+    justify-content: space-around; min-width: 112px; padding: 4px 0;
+  }
+  .rate-card {
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: 6px; padding: 6px 10px;
+  }
+  .rate-label { font-size: 10px; color: var(--muted); margin-bottom: 1px; }
+  .rate-val { font-size: 13px; font-weight: 500; color: var(--green); }
+  .rate-delta { font-size: 10px; }
+  .funil-geral {
+    background: var(--green-bg); border: 0.5px solid #A8E6C5;
+    border-radius: 6px; padding: 8px 12px; margin-top: 10px; width: 100%;
+  }
+  .funil-geral-label { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+  .funil-geral-value { font-size: 18px; font-weight: 500; color: var(--green); }
+  .funil-geral-delta { font-size: 10px; color: var(--red); }
+
+  /* ── Canais ── */
+  .canal-block { margin-bottom: 12px; }
+  .canal-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .canal-name { font-size: 12px; color: var(--text); }
+  .canal-vals { font-size: 12px; color: var(--muted); }
+  .canal-track {
+    background: var(--bg); border-radius: 3px; height: 8px;
+    overflow: hidden; border: 0.5px solid var(--border);
+  }
+  .canal-fill { height: 100%; border-radius: 3px; }
+
+  /* ── Footer ── */
+  .footer {
+    font-size: 10px; color: var(--faint);
+    text-align: center; margin-top: 20px;
+    padding-top: 14px; border-top: 0.5px solid var(--border);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 860px) {
+    .grid4 { grid-template-columns: repeat(2, 1fr); }
+    .grid3 { grid-template-columns: 1fr; }
+    .funil-outer { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo-wrap">
+    <img class="logo-img" src="data:image/png;base64,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" alt="AJA logo">
+    <span class="logo-text">AJA</span>
+  </div>
+  <span class="header-title">Dashboard Comercial · Visão Geral</span>
+  <div class="header-right">
+    <div><span class="period-badge">1 abr. 2026 – 8 abr. 2026</span></div>
+    <div class="header-meta">Dados atualizados a cada hora · Zoho CRM + Supabase + Meta Ads</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Filters -->
+  <div class="filters">
+    <span class="filter-pill">Mês</span>
+    <span class="filter-pill">Closer</span>
+    <span class="filter-pill">SDR</span>
+    <span class="filter-pill">Campaign</span>
+    <span class="filter-pill">Source</span>
+    <span class="filter-pill">Medium</span>
+  </div>
+
+  <!-- Comparativo note -->
+  <div style="font-size: 11px; color: var(--muted); background: var(--white); border: 0.5px solid var(--border); border-radius: 6px; padding: 7px 12px; margin-bottom: 16px;">
+    ⓘ Comparativo automático: período selecionado vs mesmo intervalo do mês anterior. Ex: 1–8 abr → comparado com 1–8 mar.
+  </div>
+
+  <!-- Row 1: 4 BigNumbers -->
+  <p class="section-label">Aquisição global</p>
+  <div class="grid4">
+
+    <div class="card">
+      <div class="card-label"><span class="card-label-icon">i</span>Vendas</div>
+      <div class="card-value">18</div>
+      <div class="delta">
+        <span class="badge-up">▲ 12,5%</span>
+        <span class="delta-suffix">de mês anterior</span>
+      </div>
+      <div class="card-footer">Fechado Ganho · Data do Fechamento</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label"><span class="card-label-icon">i</span>Receita (faturamento)</div>
+      <div class="card-value sm">R$ 545.900</div>
+      <div class="delta">
+        <span class="badge-up">▲ 29,1%</span>
+        <span class="delta-suffix">de mês anterior</span>
+      </div>
+      <div class="card-footer">Campo Montante R$ · CS + Comercial</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label"><span class="card-label-icon">i</span>Ticket médio</div>
+      <div class="card-value sm">R$ 30.328</div>
+      <div class="delta">
+        <span class="badge-up">▲ 14,8%</span>
+        <span class="delta-suffix">de mês anterior</span>
+      </div>
+      <div class="card-footer">Receita ÷ número de vendas</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label"><span class="card-label-icon">i</span>Leads / Novo Deal</div>
+      <div class="card-value">553</div>
+      <div class="delta">
+        <span class="badge-up">▲ 50,3%</span>
+        <span class="delta-suffix">de mês anterior</span>
+      </div>
+      <div class="card-footer">Novos deals no CRM · Zoho</div>
+    </div>
+
+  </div>
+
+  <!-- Row 2: 4 BigNumbers -->
+  <div class="grid4" style="margin-bottom: 18px;">
+
+    <div class="card">
+      <div class="card-label"><span class="card-label-icon">i</span>CAC</div>
+      <div class="card-value sm">R$ 2.737</div>
+      <div class="delta">
+        <span class="badge-up">▼ 26,4%</span>
+        <span class="delta-suffix">de mês anterior</span>
+      </div>
+      <div class="card-footer">Spend pago ÷ novas vendas pagas</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label"><span class="card-label-icon">i</span>Investimento (Meta Ads)</div>
+      <div class="card-value sm">R$ 49.267</div>
+      <div class="delta">
+        <span class="badge-down">▼ 17,2%</span>
+        <span class="delta-suffix">de mês anterior</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label"><span class="card-label-icon">i</span>CPL</div>
+      <div class="card-value sm">R$ 89,09</div>
+      <div class="delta">
+        <span class="badge-up">▼ 44,9%</span>
+        <span class="delta-suffix">de mês anterior</span>
+      </div>
+      <div class="card-footer">Custo por lead gerado</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label"><span class="card-label-icon">i</span>ROAS</div>
+      <div class="card-value">11,1</div>
+      <div class="delta">
+        <span class="badge-up">▲ 55,9%</span>
+        <span class="delta-suffix">de mês anterior</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Row 3: NPS | Funil | Canais -->
+  <p class="section-label">Conversão e canais</p>
+  <div class="grid3">
+
+    <!-- NPS -->
+    <div class="card">
+      <div class="card-label"><span class="card-label-icon">i</span>NPS</div>
+      <div class="nps-score">7,8 <span>/ 10</span></div>
+      <div class="nps-track">
+        <div class="nps-fill" style="width: 78%;"></div>
+      </div>
+      <div class="nps-labels">
+        <span>0</span>
+        <span>Meta: 9,0</span>
+        <span>10</span>
+      </div>
+      <div class="nps-meta">
+        Meta: <span class="nps-meta-badge">↓ 1,2 pts</span>
+        <span>abaixo da meta 9,0</span>
+      </div>
+      <div class="card-footer">Métricas em definição · em construção</div>
+    </div>
+
+    <!-- Funil de Conversão -->
+    <div class="card">
+      <div class="card-label" style="margin-bottom: 12px;"><span class="card-label-icon">i</span>Funil de conversão</div>
+      <div class="funil-outer">
+        <div class="funil-pyramid">
+          <div class="funil-layer" style="width:100%; background:#EEF7F3;">
+            <div class="funil-layer-label">Leads / Novo Deal</div>
+            <div class="funil-layer-value">553</div>
+          </div>
+          <div class="funil-layer" style="width:82%; background:#E4F3EC;">
+            <div class="funil-layer-label">MQLs</div>
+            <div class="funil-layer-value">230</div>
+          </div>
+          <div class="funil-layer" style="width:64%; background:#D5EDE3;">
+            <div class="funil-layer-label">Agendamentos</div>
+            <div class="funil-layer-value">71</div>
+          </div>
+          <div class="funil-layer" style="width:46%; background:#C0E5D4;">
+            <div class="funil-layer-label">Vendas</div>
+            <div class="funil-layer-value" style="color:var(--green);">18</div>
+          </div>
+          <div class="funil-geral">
+            <div class="funil-geral-label">Conversão geral</div>
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <div class="funil-geral-value">3,3%</div>
+              <div class="funil-geral-delta">▼ 25,1% vs mês ant.</div>
+            </div>
+          </div>
+        </div>
+        <div class="funil-rates">
+          <div class="rate-card">
+            <div class="rate-label">% MQLs / Leads</div>
+            <div class="rate-val">41,6%</div>
+            <div class="rate-delta" style="color:var(--green);">▲ 36,7%</div>
+          </div>
+          <div class="rate-card">
+            <div class="rate-label">% Agend. / MQLs</div>
+            <div class="rate-val">30,9%</div>
+            <div class="rate-delta" style="color:var(--green);">▲ 28,1%</div>
+          </div>
+          <div class="rate-card">
+            <div class="rate-label">% Vendas / Agend.</div>
+            <div class="rate-val">25,4%</div>
+            <div class="rate-delta" style="color:var(--red);">▼ 57,2%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canais -->
+    <div class="card">
+      <div class="card-label" style="margin-bottom:14px;"><span class="card-label-icon">i</span>Vendas por canal de entrada</div>
+
+      <div class="canal-block">
+        <div class="canal-row">
+          <span class="canal-name">Pago</span>
+          <span class="canal-vals">12 vendas · 67%</span>
+        </div>
+        <div class="canal-track">
+          <div class="canal-fill" style="width:67%; background:var(--green);"></div>
+        </div>
+      </div>
+
+      <div class="canal-block">
+        <div class="canal-row">
+          <span class="canal-name">Sem rastreamento</span>
+          <span class="canal-vals">3 vendas · 17%</span>
+        </div>
+        <div class="canal-track">
+          <div class="canal-fill" style="width:17%; background:#AAAABC;"></div>
+        </div>
+      </div>
+
+      <div class="canal-block">
+        <div class="canal-row">
+          <span class="canal-name">Orgânico</span>
+          <span class="canal-vals">3 vendas · 17%</span>
+        </div>
+        <div class="canal-track">
+          <div class="canal-fill" style="width:17%; background:#5B8DEF;"></div>
+        </div>
+      </div>
+
+      <div class="card-footer">Origem: utm_source / Zoho CRM · Data do Fechamento</div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Elaborado para AJA Educação · Fonte: Zoho CRM + Meta Ads via Supabase · Atualização automática a cada hora<br>
+    * Dados de referência baseados no Looker Studio (1–8 abr. 2026) · Versão 0.3 · Aguardando conexão Supabase para dados em tempo real
+  </div>
+
+</div>
+</body>
+</html>
