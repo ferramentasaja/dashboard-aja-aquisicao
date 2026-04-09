@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Comercial — AJA Educação</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0F1117;
+    color: #E8E8E8;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 0.5px solid #2A2A2A;
+  }
+  .header-left .brand {
+    font-size: 11px;
+    color: #666;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .header-left h1 {
+    font-size: 20px;
+    font-weight: 500;
+    color: #F0F0F0;
+  }
+  .header-right { text-align: right; }
+  .period-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    background: #1C1C1C;
+    border: 0.5px solid #333;
+    border-radius: 8px;
+    padding: 5px 14px;
+    color: #E8E8E8;
+    margin-bottom: 4px;
+  }
+  .period-sub { font-size: 11px; color: #555; }
+
+  .section-label {
+    font-size: 11px;
+    color: #555;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  /* --- BigNumber grid --- */
+  .bignumbers {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .card {
+    background: #161B22;
+    border: 0.5px solid #2A2A2A;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .card-label {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  .card-value {
+    font-size: 26px;
+    font-weight: 500;
+    color: #F0F0F0;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .card-delta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .badge-down { background: #2D1212; color: #F87171; }
+  .badge-up   { background: #0D2D1A; color: #4ADE80; }
+  .badge-flat { background: #1C1C1C; color: #999; }
+  .card-vs { font-size: 11px; color: #555; }
+  .card-footer {
+    font-size: 11px;
+    color: #555;
+    padding-top: 8px;
+    border-top: 0.5px solid #222;
+  }
+
+  /* --- Second row --- */
+  .second-row {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr 1fr;
+    gap: 10px;
+  }
+
+  /* NPS card */
+  .nps-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px 0;
+  }
+  .nps-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px dashed #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #444;
+    font-size: 18px;
+  }
+  .nps-text { font-size: 12px; color: #888; }
+  .nps-sub  { font-size: 11px; color: #555; }
+
+  /* Bar rows */
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+  .bar-row-label {
+    font-size: 11px;
+    color: #999;
+    width: 104px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+  }
+  .bar-track {
+    flex: 1;
+    background: #1E1E1E;
+    border-radius: 2px;
+    height: 7px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    opacity: 0.8;
+  }
+  .bar-count {
+    font-size: 11px;
+    color: #555;
+    min-width: 18px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Canal rows */
+  .canal-block { margin-bottom: 12px; }
+  .canal-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+  .canal-name { font-size: 11px; color: #999; }
+  .canal-pct  { font-size: 11px; font-weight: 500; color: #E8E8E8; }
+  .canal-sub  { font-size: 11px; color: #555; margin-top: 3px; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 0.5px solid #222;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: #555;
+  }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* Note */
+  .note {
+    text-align: center;
+    font-size: 11px;
+    color: #444;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 900px) {
+    .bignumbers { grid-template-columns: repeat(2, 1fr); }
+    .second-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <p class="brand">AJA Educação · dashboard comercial</p>
+    <h1>Visão geral de aquisição</h1>
+  </div>
+  <div class="header-right">
+    <span class="period-badge">Abril 2026</span>
+    <p class="period-sub">comparando com Março 2026</p>
+  </div>
+</div>
+
+<!-- BigNumbers -->
+<p class="section-label">Bignumbers principais</p>
+<div class="bignumbers">
+
+  <div class="card">
+    <p class="card-label">Receita</p>
+    <p class="card-value">R$ 121k</p>
+    <div class="card-delta">
+      <span class="badge badge-down">↓ 68,7%</span>
+      <span class="card-vs">vs R$ 386k</span>
+    </div>
+    <p class="card-footer">Ascensão + Renovação · mês parcial (9 dias)</p>
+  </div>
+
+  <div class="card">
+    <p class="card-label">Novas vendas</p>
+    <p class="card-value">1</p>
+    <div class="card-delta">
+      <span class="card-vs">Março: aguardando dtfechamento</span>
+    </div>
+    <p class="card-footer">Pipeline · Fechado Ganho com data</p>
+  </div>
+
+  <div class="card">
+    <p class="card-label">Ticket médio</p>
+    <p class="card-value">R$ 40,3k</p>
+    <div class="card-delta">
+      <span class="badge badge-up">↑ 25,4%</span>
+      <span class="card-vs">vs R$ 32,2k</span>
+    </div>
+    <p class="card-footer">Ascensão + Renovação</p>
+  </div>
+
+  <div class="card">
+    <p class="card-label">CAC</p>
+    <p class="card-value">R$ 53,2k</p>
+    <div class="card-delta">
+      <span class="card-vs">Março: spend R$ 209,5k</span>
+    </div>
+    <p class="card-footer">Spend Meta ÷ novas vendas pagas</p>
+  </div>
+
+</div>
+
+<!-- Second row -->
+<div class="second-row">
+
+  <!-- NPS -->
+  <div class="card" style="display: flex; flex-direction: column;">
+    <p class="card-label">NPS</p>
+    <div class="nps-inner">
+      <div class="nps-circle">?</div>
+      <p class="nps-text">Em construção</p>
+      <p class="nps-sub">métricas em definição</p>
+    </div>
+  </div>
+
+  <!-- Funil -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+      <p class="card-label" style="margin: 0;">Funil comercial — pipeline atual</p>
+      <span style="font-size: 11px; color: #888; font-weight: 500;">conv. geral 1%</span>
+    </div>
+
+    <div class="bar-row">
+      <span class="bar-row-label">Pré-qualificação</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 27.5%; background: #3B82F6;"></div></div>
+      <span class="bar-count">11</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-row-label">Conexão</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 62.5%; background: #3B82F6;"></div></div>
+      <span class="bar-count">25</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-row-label">Abordagem</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #3B82F6;"></div></div>
+      <span class="bar-count">40</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-row-label">Reunião agendada</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 17.5%; background: #3B82F6;"></div></div>
+      <span class="bar-count">7</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-row-label">No show</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 7.5%; background: #EF4444;"></div></div>
+      <span class="bar-count">3</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-row-label">Perdido — SDR</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 7.5%; background: #EF4444;"></div></div>
+      <span class="bar-count">3</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-row-label" style="color: #4ADE80;">Fechado ganho</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 2.5%; background: #22C55E;"></div></div>
+      <span class="bar-count" style="color: #4ADE80;">1</span>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background: #3B82F6;"></span>Ativo no funil</span>
+      <span class="legend-item"><span class="legend-dot" style="background: #EF4444;"></span>Perdido / No show</span>
+      <span class="legend-item"><span class="legend-dot" style="background: #22C55E;"></span>Fechado ganho</span>
+    </div>
+  </div>
+
+  <!-- Canais -->
+  <div class="card">
+    <p class="card-label" style="margin-bottom: 14px;">Canais de aquisição</p>
+
+    <div class="canal-block">
+      <div class="canal-header">
+        <span class="canal-name">Pago (Meta)</span>
+        <span class="canal-pct">83%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width: 83%; background: #3B82F6;"></div></div>
+      <p class="canal-sub">83 leads</p>
+    </div>
+
+    <div class="canal-block">
+      <div class="canal-header">
+        <span class="canal-name">Orgânico</span>
+        <span class="canal-pct">15%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width: 15%; background: #22C55E;"></div></div>
+      <p class="canal-sub">15 leads (Instagram, bio)</p>
+    </div>
+
+    <div class="canal-block">
+      <div class="canal-header">
+        <span class="canal-name">Sem rastreamento</span>
+        <span class="canal-pct">2%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width: 2%; background: #555;"></div></div>
+      <p class="canal-sub">2 leads</p>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background: #3B82F6;"></span>Pago</span>
+      <span class="legend-item"><span class="legend-dot" style="background: #22C55E;"></span>Orgânico</span>
+      <span class="legend-item"><span class="legend-dot" style="background: #555;"></span>Sem rastr.</span>
+    </div>
+  </div>
+
+</div>
+
+<p class="note">Mockup com dados de amostra · cores placeholder (aguardando branding AJA) · versão 0.1</p>
+
+</body>
+</html>
