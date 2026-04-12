@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Comercial — AJA Educação</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:         #F2F2F5;
+    --surface:    #FFFFFF;
+    --border:     #E0E0E8;
+    --border2:    #EBEBF2;
+    --header-bg:  #0D0D0F;
+    --text:       #111118;
+    --muted:      #6B6B80;
+    --faint:      #ADADBE;
+    --green:      #18A85A;
+    --green-bg:   #EAF7F0;
+    --green-text: #0F7A3F;
+    --red:        #D93636;
+    --red-bg:     #FDEAEA;
+    --red-text:   #A82020;
+    --blue:       #3B6EDB;
+    --blue-bg:    #EBF0FC;
+    --amber:      #C07A00;
+    --amber-bg:   #FEF3DC;
+  }
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* LOGIN */
+  #login-screen {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--header-bg);
+  }
+  .login-card {
+    background: #1A1A22; border: 0.5px solid #2A2A3A;
+    border-radius: 14px; padding: 40px 36px; width: 340px; text-align: center;
+  }
+  .login-logo {
+    width: 36px; height: 36px; object-fit: contain;
+    filter: brightness(0) invert(1); margin-bottom: 8px;
+  }
+  .login-brand { font-size: 20px; font-weight: 600; color: #FFF; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .login-sub   { font-size: 12px; color: #666; margin-bottom: 28px; }
+  .login-label { font-size: 11px; color: #888; text-align: left; margin-bottom: 6px; letter-spacing: 0.04em; }
+  .login-input {
+    width: 100%; background: #111115; border: 0.5px solid #333;
+    border-radius: 8px; padding: 10px 14px; font-size: 14px; color: #FFF;
+    font-family: 'DM Mono', monospace; margin-bottom: 16px; outline: none; transition: border-color 0.2s;
+  }
+  .login-input:focus { border-color: #18A85A; }
+  .login-btn {
+    width: 100%; background: #18A85A; color: #FFF; border: none;
+    border-radius: 8px; padding: 11px; font-size: 13px; font-weight: 500;
+    font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.2s;
+  }
+  .login-btn:hover { background: #14934E; }
+  .login-error { font-size: 11px; color: #F26B6B; margin-top: 10px; min-height: 16px; }
+
+  /* DASHBOARD */
+  #dashboard { display: none; }
+
+  .header {
+    background: var(--header-bg); padding: 13px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 9px; }
+  .logo-img  { width: 26px; height: 26px; object-fit: contain; filter: brightness(0) invert(1); }
+  .logo-text { font-size: 16px; font-weight: 600; color: #FFF; letter-spacing: 0.06em; }
+  .header-title { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 400; }
+  .header-right { display: flex; align-items: center; gap: 14px; }
+  .period-badge {
+    font-size: 11px; color: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.15);
+    border-radius: 5px; padding: 4px 11px;
+  }
+  .refresh-info { font-size: 11px; color: rgba(255,255,255,0.35); }
+  .logout-btn {
+    font-size: 11px; color: rgba(255,255,255,0.4);
+    background: none; border: none; cursor: pointer; padding: 4px 8px; transition: color 0.2s;
+  }
+  .logout-btn:hover { color: rgba(255,255,255,0.8); }
+
+  .content { padding: 20px 24px 36px; max-width: 1400px; margin: 0 auto; }
+
+  .compare-note {
+    font-size: 11px; color: var(--muted);
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 7px; padding: 8px 14px; margin-bottom: 18px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .compare-note-icon {
+    width: 15px; height: 15px; border-radius: 50%;
+    border: 1px solid var(--border); display: flex; align-items: center;
+    justify-content: center; font-size: 9px; color: var(--faint); flex-shrink: 0;
+  }
+
+  .section-label {
+    font-size: 10px; color: var(--faint);
+    letter-spacing: 0.07em; text-transform: uppercase;
+    margin-bottom: 10px; margin-top: 20px;
+  }
+
+  .grid { display: grid; gap: 8px; }
+  .g5  { grid-template-columns: repeat(5, minmax(0,1fr)); }
+  .g4  { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .g3  { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .g2  { grid-template-columns: repeat(2, minmax(0,1fr)); }
+
+  .card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .card-label {
+    font-size: 11px; color: var(--muted); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .card-icon {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1px solid var(--border2); display: flex; align-items: center;
+    justify-content: center; font-size: 9px; color: var(--faint); flex-shrink: 0;
+  }
+  .card-value {
+    font-size: 28px; font-weight: 500; color: var(--text);
+    line-height: 1.1; margin-bottom: 7px; font-variant-numeric: tabular-nums;
+  }
+  .card-value.sm { font-size: 21px; }
+  .card-value.loading {
+    background: var(--border2); border-radius: 4px; color: transparent;
+    animation: pulse 1.4s ease-in-out infinite;
+    user-select: none; min-width: 80px; display: inline-block;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .delta { display: flex; align-items: center; gap: 5px; font-size: 11px; flex-wrap: wrap; }
+  .badge { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+  .badge-up   { background: var(--green-bg); color: var(--green-text); }
+  .badge-down { background: var(--red-bg);   color: var(--red-text); }
+  .badge-flat { background: #F0F0F5; color: var(--muted); }
+  .badge-soon { background: var(--amber-bg); color: var(--amber); }
+  .delta-vs   { font-size: 11px; color: var(--faint); }
+  .card-footer {
+    font-size: 10px; color: var(--faint);
+    padding-top: 8px; margin-top: 8px; border-top: 0.5px solid var(--border2);
+  }
+  .divider { height: 0.5px; background: var(--border); margin: 20px 0; }
+
+  /* Canais */
+  .canais-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .canal-card {
+    background: var(--bg); border: 0.5px solid var(--border);
+    border-radius: 8px; padding: 14px;
+  }
+  .canal-card-label { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .canal-card-value {
+    font-size: 24px; font-weight: 500; color: var(--text);
+    margin-bottom: 5px; font-variant-numeric: tabular-nums;
+  }
+  .canal-card-value.loading {
+    background: var(--border2); border-radius: 4px; color: transparent;
+    animation: pulse 1.4s ease-in-out infinite;
+    display: inline-block; min-width: 40px;
+  }
+  .canal-card-pct  { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .canal-track {
+    background: var(--surface); border-radius: 3px; height: 6px;
+    overflow: hidden; border: 0.5px solid var(--border2);
+  }
+  .canal-fill { height: 100%; border-radius: 3px; transition: width 0.7s ease; }
+
+  .error-banner {
+    background: var(--red-bg); border: 0.5px solid #F5BABA;
+    border-radius: 8px; padding: 10px 14px; font-size: 11px;
+    color: var(--red-text); margin-bottom: 16px; display: none;
+  }
+
+  .footer {
+    text-align: center; font-size: 10px; color: var(--faint);
+    margin-top: 24px; padding-top: 14px;
+    border-top: 0.5px solid var(--border); line-height: 1.7;
+  }
+
+  @media (max-width: 1100px) { .g5 { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 860px)  { .g5,.g4 { grid-template-columns: repeat(2, 1fr); } .canais-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 520px)  { .g5,.g4,.g2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <img class="login-logo" src="data:image/png;base64,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" alt="AJA">
+    <div class="login-brand">AJA</div>
+    <div class="login-sub">Dashboard Comercial · Acesso Restrito</div>
+    <div class="login-label">SENHA DE ACESSO</div>
+    <input class="login-input" type="password" id="pwd-input" placeholder="••••••••••••" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="header">
+    <div class="logo-wrap">
+      <img class="logo-img" src="data:image/png;base64,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" alt="AJA">
+      <span class="logo-text">AJA</span>
+    </div>
+    <span class="header-title">Dashboard Comercial · Visão Geral</span>
+    <div class="header-right">
+      <span class="period-badge" id="period-label">...</span>
+      <span class="refresh-info" id="refresh-info">Carregando...</span>
+      <button class="logout-btn" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="compare-note">
+      <div class="compare-note-icon">i</div>
+      Comparativo automático: período atual vs mesmo intervalo do mês anterior.
+      Ex: 1–12 abr → comparado com 1–12 mar.
+    </div>
+
+    <div class="error-banner" id="error-banner">
+      ⚠ Erro ao carregar dados. <span id="error-detail"></span>
+    </div>
+
+    <!-- Aquisição -->
+    <p class="section-label">Aquisição — Comercial</p>
+    <div class="grid g5" style="margin-bottom: 8px;">
+
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>Leads Totais</div>
+        <div class="card-value loading" id="val-leads">000</div>
+        <div class="delta" id="delta-leads"><span class="badge badge-flat">—</span><span class="delta-vs">vs mês ant.</span></div>
+        <div class="card-footer">COUNT DISTINCT id_negocio · Comercial</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>Vendas Novas</div>
+        <div class="card-value loading" id="val-vendas">000</div>
+        <div class="delta" id="delta-vendas"><span class="badge badge-flat">—</span><span class="delta-vs">vs mês ant.</span></div>
+        <div class="card-footer">Fechado Ganho · dtfechamento</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>Taxa de Conversão</div>
+        <div class="card-value loading" id="val-conv">0%</div>
+        <div class="delta" id="delta-conv"><span class="badge badge-flat">—</span><span class="delta-vs">vs mês ant.</span></div>
+        <div class="card-footer">Vendas Novas ÷ Leads Totais</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>Receita Vendas Novas</div>
+        <div class="card-value sm loading" id="val-receita-vendas">R$ 0</div>
+        <div class="delta" id="delta-receita-vendas"><span class="badge badge-flat">—</span><span class="delta-vs">vs mês ant.</span></div>
+        <div class="card-footer">SUM montante · Fechado Ganho</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>CAC Geral</div>
+        <div class="card-value sm">—</div>
+        <div class="delta"><span class="badge badge-soon">Em breve</span></div>
+        <div class="card-footer">Aguardando tabela Meta Ads</div>
+      </div>
+
+    </div>
+
+    <!-- CS -->
+    <p class="section-label">CS — Renovações e Ascensões</p>
+    <div class="grid g4" style="margin-bottom: 8px;">
+
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>Renovações</div>
+        <div class="card-value loading" id="val-renov">000</div>
+        <div class="delta" id="delta-renov"><span class="badge badge-flat">—</span><span class="delta-vs">vs mês ant.</span></div>
+        <div class="card-footer">tipo_venda = Renovação · Hub</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>Ascensões</div>
+        <div class="card-value loading" id="val-asc">000</div>
+        <div class="delta" id="delta-asc"><span class="badge badge-flat">—</span><span class="delta-vs">vs mês ant.</span></div>
+        <div class="card-footer">tipo_venda = Ascensão · Hub</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>Receita Renovações</div>
+        <div class="card-value sm loading" id="val-receita-renov">R$ 0</div>
+        <div class="delta" id="delta-receita-renov"><span class="badge badge-flat">—</span><span class="delta-vs">vs mês ant.</span></div>
+        <div class="card-footer">SUM montante_numerico · Renovação</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>Receita Ascensões</div>
+        <div class="card-value sm loading" id="val-receita-asc">R$ 0</div>
+        <div class="delta" id="delta-receita-asc"><span class="badge badge-flat">—</span><span class="delta-vs">vs mês ant.</span></div>
+        <div class="card-footer">SUM montante_numerico · Ascensão</div>
+      </div>
+
+    </div>
+
+    <!-- Totais -->
+    <div class="grid g2" style="margin-bottom: 0;">
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>Receita Total</div>
+        <div class="card-value sm loading" id="val-receita-total">R$ 0</div>
+        <div class="delta" id="delta-receita-total"><span class="badge badge-flat">—</span><span class="delta-vs">vs mês ant.</span></div>
+        <div class="card-footer">Vendas Novas + Renovações + Ascensões</div>
+      </div>
+      <div class="card">
+        <div class="card-label"><div class="card-icon">i</div>ROAS</div>
+        <div class="card-value">—</div>
+        <div class="delta"><span class="badge badge-soon">Em breve</span></div>
+        <div class="card-footer">Aguardando tabela Meta Ads</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Canais -->
+    <p class="section-label">Vendas Novas por Canal</p>
+    <div class="card">
+      <div class="card-label"><div class="card-icon">i</div>Distribuição por utm_medium · vendas com dtfechamento no período</div>
+      <div class="canais-grid">
+
+        <div class="canal-card">
+          <div class="canal-card-label">Pago</div>
+          <div class="canal-card-value loading" id="canal-pago-val">0</div>
+          <div class="canal-card-pct" id="canal-pago-pct">— % das vendas</div>
+          <div class="canal-track">
+            <div class="canal-fill" id="canal-pago-bar" style="width:0%; background:var(--green);"></div>
+          </div>
+          <div style="font-size:10px; color:var(--faint); margin-top:5px;">utm_medium = paid</div>
+        </div>
+
+        <div class="canal-card">
+          <div class="canal-card-label">Orgânico</div>
+          <div class="canal-card-value loading" id="canal-org-val">0</div>
+          <div class="canal-card-pct" id="canal-org-pct">— % das vendas</div>
+          <div class="canal-track">
+            <div class="canal-fill" id="canal-org-bar" style="width:0%; background:var(--blue);"></div>
+          </div>
+          <div style="font-size:10px; color:var(--faint); margin-top:5px;">utm_medium = organic</div>
+        </div>
+
+        <div class="canal-card">
+          <div class="canal-card-label">Sem Rastreamento</div>
+          <div class="canal-card-value loading" id="canal-sem-val">0</div>
+          <div class="canal-card-pct" id="canal-sem-pct">— % das vendas</div>
+          <div class="canal-track">
+            <div class="canal-fill" id="canal-sem-bar" style="width:0%; background:var(--faint);"></div>
+          </div>
+          <div style="font-size:10px; color:var(--faint); margin-top:5px;">utm_medium = outros / vazio</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer">
+      AJA Educação · Fonte: Zoho CRM + Supabase · Dados atualizados a cada hora<br>
+      <span id="last-update-text">—</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const SENHA        = 'AJAdata@2026!';
+const COMERCIAL_URL = 'https://kwhrqhehumowflrigzcd.supabase.co';
+const COMERCIAL_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3aHJxaGVodW1vd2ZscmlnemNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4ODU0NzMsImV4cCI6MjA4MzQ2MTQ3M30.GgCUZB_-VIbS_AqI7x2-XJ55vQwRXvYznD6cbNvz0QE';
+const HUB_URL       = 'https://btczhsdiqozuiytvsbcl.supabase.co';
+const HUB_KEY       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0Y3poc2RpcW96dWl5dHZzYmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4ODYzMDksImV4cCI6MjA4NzQ2MjMwOX0.Y_fRfHlP929FM8Hvyts64i72uIywL0AbMDJrsoAr_vA';
+const TABELA_CS     = 'receita CS - Renovações e Ascensões [BASE TOTAL]';
+const TABELA_DEAL   = 'deal_webhook_comercial';
+const TABELA_UTM    = 'deal_utm_dim';
+
+// ── LOGIN ──
+function doLogin() {
+  if (document.getElementById('pwd-input').value === SENHA) {
+    sessionStorage.setItem('aja_auth','1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    initDashboard();
+  } else {
+    document.getElementById('login-error').textContent = 'Senha incorreta.';
+    document.getElementById('pwd-input').value = '';
+  }
+}
+document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+function doLogout() {
+  sessionStorage.removeItem('aja_auth');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+}
+if (sessionStorage.getItem('aja_auth')==='1') {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+}
+
+// ── PERÍODOS ──
+function getPeriodos() {
+  const now=new Date(), day=now.getDate(), month=now.getMonth(), year=now.getFullYear();
+  const curStart=new Date(year,month,1), curEnd=new Date(year,month,day,23,59,59);
+  const pm=month===0?11:month-1, py=month===0?year-1:year;
+  const prevStart=new Date(py,pm,1), prevEnd=new Date(py,pm,day,23,59,59);
+  const fmt=d=>d.toISOString().split('T')[0];
+  const fl=d=>d.toLocaleDateString('pt-BR',{day:'numeric',month:'short'});
+  return {
+    cur:{start:fmt(curStart),end:fmt(curEnd)},
+    prev:{start:fmt(prevStart),end:fmt(prevEnd)},
+    label:`${fl(curStart)} – ${fl(curEnd)} de ${year}`
+  };
+}
+
+// ── HELPERS ──
+function fmtBRL(v) {
+  if(v==null||isNaN(v)) return 'R$ —';
+  if(v>=1e6) return 'R$ '+(v/1e6).toFixed(2).replace('.',',')+'M';
+  if(v>=1e3) return 'R$ '+(v/1e3).toFixed(1).replace('.',',')+'k';
+  return 'R$ '+Math.round(v).toLocaleString('pt-BR');
+}
+function fmtNum(v) { return (v==null||isNaN(v)) ? '—' : v.toLocaleString('pt-BR'); }
+function fmtPct(v) { return (v==null||isNaN(v)) ? '—%' : v.toFixed(1).replace('.',',')+' %'; }
+function calcDelta(cur,prev) {
+  if(!prev||prev===0) return {badge:'flat',label:'—'};
+  const pct=((cur-prev)/prev)*100;
+  return { badge: pct>0?'up':pct<0?'down':'flat', label:(pct>=0?'▲ ':'▼ ')+Math.abs(pct).toFixed(1).replace('.',',')+' %' };
+}
+function setVal(id,text) {
+  const el=document.getElementById(id);
+  if(el){ el.textContent=text; el.classList.remove('loading'); }
+}
+function setDelta(id,d) {
+  const el=document.getElementById(id);
+  if(el) el.innerHTML=`<span class="badge badge-${d.badge}">${d.label}</span><span class="delta-vs">vs mês ant.</span>`;
+}
+
+// ── CLIENTES SUPABASE ──
+const {createClient}=supabase;
+const dbCom=createClient(COMERCIAL_URL,COMERCIAL_KEY);
+const dbHub=createClient(HUB_URL,HUB_KEY);
+
+// ── FETCH ──
+async function fetchComercial(start,end) {
+  const {data:leads,error:e1}=await dbCom.from(TABELA_DEAL)
+    .select('id_negocio,estagio,montante,dtcadastro,dtfechamento')
+    .gte('dtcadastro',start).lte('dtcadastro',end+' 23:59:59');
+  if(e1) throw new Error('Leads: '+e1.message);
+
+  const {data:vendas,error:e2}=await dbCom.from(TABELA_DEAL)
+    .select('id_negocio,montante,estagio,dtfechamento')
+    .in('estagio',['Fechado Ganho','Ganho'])
+    .gte('dtfechamento',start).lte('dtfechamento',end+' 23:59:59');
+  if(e2) throw new Error('Vendas: '+e2.message);
+
+  // UTMs dos negócios que fecharam no período
+  const ids=vendas.map(v=>v.id_negocio).filter(Boolean);
+  let utms=[];
+  if(ids.length>0){
+    const {data:u,error:e3}=await dbCom.from(TABELA_UTM)
+      .select('id_negocio,utm_medium').in('id_negocio',ids);
+    if(!e3) utms=u||[];
+  }
+  return {leads:leads||[],vendas:vendas||[],utms};
+}
+
+async function fetchCS(start,end) {
+  const {data,error}=await dbHub.from(TABELA_CS)
+    .select('tipo_venda,montante_numerico,data_referencia_fechamento_date,ano')
+    .gte('data_referencia_fechamento_date',start)
+    .lte('data_referencia_fechamento_date',end)
+    .neq('ano',1899);
+  if(error) throw new Error('CS: '+error.message);
+  return data||[];
+}
+
+// ── CÁLCULO ──
+function calcMetrics(comData,csData) {
+  const {leads,vendas,utms}=comData;
+  const leadsUniq  = new Set(leads.map(r=>r.id_negocio)).size;
+  const vendasUniq = new Set(vendas.map(r=>r.id_negocio)).size;
+  const conv       = leadsUniq>0 ? (vendasUniq/leadsUniq)*100 : 0;
+  const receitaVendas = vendas.reduce((a,r)=>a+(parseFloat(r.montante)||0),0);
+
+  // Canais por utm_medium nas vendas fechadas
+  const utmMap={};
+  utms.forEach(u=>{ utmMap[u.id_negocio]=u.utm_medium; });
+  let pago=0,organico=0,semRastr=0;
+  vendas.forEach(r=>{
+    const med=(utmMap[r.id_negocio]||'').toLowerCase().trim();
+    if(med==='paid')         pago++;
+    else if(med==='organic') organico++;
+    else                     semRastr++;
+  });
+
+  const renovacoes = csData.filter(r=>r.tipo_venda==='Renovação');
+  const ascensoes  = csData.filter(r=>r.tipo_venda==='Ascensão');
+  const receitaRenov = renovacoes.reduce((a,r)=>a+(parseFloat(r.montante_numerico)||0),0);
+  const receitaAsc   = ascensoes.reduce((a,r) =>a+(parseFloat(r.montante_numerico)||0),0);
+  const receitaTotal = receitaVendas+receitaRenov+receitaAsc;
+
+  return {leadsUniq,vendasUniq,conv,receitaVendas,pago,organico,semRastr,
+          renovacoes:renovacoes.length,ascensoes:ascensoes.length,
+          receitaRenov,receitaAsc,receitaTotal};
+}
+
+// ── RENDER ──
+function renderDashboard(cur,prev) {
+  setVal('val-leads',          fmtNum(cur.leadsUniq));
+  setVal('val-vendas',         fmtNum(cur.vendasUniq));
+  setVal('val-conv',           fmtPct(cur.conv));
+  setVal('val-receita-vendas', fmtBRL(cur.receitaVendas));
+  setVal('val-renov',          fmtNum(cur.renovacoes));
+  setVal('val-asc',            fmtNum(cur.ascensoes));
+  setVal('val-receita-renov',  fmtBRL(cur.receitaRenov));
+  setVal('val-receita-asc',    fmtBRL(cur.receitaAsc));
+  setVal('val-receita-total',  fmtBRL(cur.receitaTotal));
+
+  setDelta('delta-leads',          calcDelta(cur.leadsUniq,    prev.leadsUniq));
+  setDelta('delta-vendas',         calcDelta(cur.vendasUniq,   prev.vendasUniq));
+  setDelta('delta-conv',           calcDelta(cur.conv,         prev.conv));
+  setDelta('delta-receita-vendas', calcDelta(cur.receitaVendas,prev.receitaVendas));
+  setDelta('delta-renov',          calcDelta(cur.renovacoes,   prev.renovacoes));
+  setDelta('delta-asc',            calcDelta(cur.ascensoes,    prev.ascensoes));
+  setDelta('delta-receita-renov',  calcDelta(cur.receitaRenov, prev.receitaRenov));
+  setDelta('delta-receita-asc',    calcDelta(cur.receitaAsc,   prev.receitaAsc));
+  setDelta('delta-receita-total',  calcDelta(cur.receitaTotal, prev.receitaTotal));
+
+  // Canais
+  const tot=cur.vendasUniq||1;
+  const pPago=Math.round((cur.pago/tot)*100);
+  const pOrg =Math.round((cur.organico/tot)*100);
+  const pSem =Math.round((cur.semRastr/tot)*100);
+  setVal('canal-pago-val', fmtNum(cur.pago));
+  setVal('canal-org-val',  fmtNum(cur.organico));
+  setVal('canal-sem-val',  fmtNum(cur.semRastr));
+  document.getElementById('canal-pago-pct').textContent = pPago+'% das vendas';
+  document.getElementById('canal-org-pct').textContent  = pOrg +'% das vendas';
+  document.getElementById('canal-sem-pct').textContent  = pSem +'% das vendas';
+  setTimeout(()=>{
+    document.getElementById('canal-pago-bar').style.width=pPago+'%';
+    document.getElementById('canal-org-bar').style.width =pOrg +'%';
+    document.getElementById('canal-sem-bar').style.width =pSem +'%';
+  },150);
+
+  const now=new Date();
+  document.getElementById('refresh-info').textContent='Atualizado '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('last-update-text').textContent='Última atualização: '+now.toLocaleString('pt-BR');
+}
+
+// ── LOAD ──
+async function loadData() {
+  const p=getPeriodos();
+  document.getElementById('period-label').textContent=p.label;
+  document.getElementById('error-banner').style.display='none';
+  try {
+    const [comCur,comPrev,csCur,csPrev]=await Promise.all([
+      fetchComercial(p.cur.start, p.cur.end),
+      fetchComercial(p.prev.start,p.prev.end),
+      fetchCS(p.cur.start, p.cur.end),
+      fetchCS(p.prev.start,p.prev.end),
+    ]);
+    renderDashboard(calcMetrics(comCur,csCur), calcMetrics(comPrev,csPrev));
+  } catch(err) {
+    console.error(err);
+    document.getElementById('error-banner').style.display='block';
+    document.getElementById('error-detail').textContent=err.message;
+  }
+}
+
+function initDashboard() {
+  loadData();
+  setInterval(loadData, 60*60*1000);
+}
+
+if(sessionStorage.getItem('aja_auth')==='1') initDashboard();
+</script>
+</body>
+</html>
