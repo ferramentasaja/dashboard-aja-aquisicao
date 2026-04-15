@@ -1,17 +1,28 @@
-# AJA Metrics — Dashboard Comercial
+# AJA Metrics — Dashboard Aquisição
 
-Dashboard de métricas comerciais da AJA Educação, construído em HTML estático com conexão direta ao Supabase via JavaScript. Hospedado no GitHub Pages.
+Dashboard executivo de métricas comerciais da AJA Educação. HTML estático hospedado no GitHub Pages, com dados em tempo real via Cloudflare Worker + Supabase.
 
 ---
 
 ## Visão geral
 
-Painel executivo de aquisição e retenção, atualizado automaticamente a cada hora, com filtro de período personalizável e comparativo automático com intervalo anterior.
+Painel de aquisição e retenção para o CEO, com filtro de período personalizável e comparativo automático com o intervalo anterior. Os dados são buscados em tempo real de dois projetos Supabase, passando por um proxy seguro no Cloudflare Worker — as chaves de API nunca ficam expostas no código público.
 
-Os dados são puxados em tempo real de dois projetos Supabase:
+---
 
-- **Comercial** — pipeline de leads e vendas (Zoho CRM)
-- **Hub Mentorada** — renovações e ascensões (CS)
+## Arquitetura
+
+```
+Browser do CEO
+    │
+    └── GitHub Pages (index.html)
+            │
+            └── Cloudflare Worker (proxy seguro)
+                    ├── /api/comercial → Supabase Comercial
+                    └── /api/hub       → Supabase Hub-mentorada
+```
+
+As chaves do Supabase ficam armazenadas como **Secrets** no Cloudflare Worker — invisíveis para qualquer pessoa que inspecione o código-fonte do dashboard.
 
 ---
 
@@ -23,7 +34,7 @@ Os dados são puxados em tempo real de dois projetos Supabase:
 |---|---|
 | Receita Total | Soma de Vendas Novas + Renovações + Ascensões |
 | Receita Vendas Novas | Faturamento de novos negócios fechados |
-| Vendas Novas | Total de negócios com estágio Fechado Ganho |
+| Vendas Novas | Total de negócios com estágio Fechado Ganho / Ganho |
 | Leads Novos | Total de novos deals cadastrados no período |
 | Taxa de Conversão | Vendas Novas ÷ Leads Novos |
 
@@ -36,14 +47,14 @@ Os dados são puxados em tempo real de dois projetos Supabase:
 | Receita Ascensões | Faturamento de upgrades de produto |
 | Ascensões | Quantidade de upgrades no período |
 
-### Vendas por Canal
+### Canais de Aquisição
 
 Distribuição das vendas fechadas por `utm_medium`:
 
 | Canal | Critério |
 |---|---|
-| Pago | `utm_medium = paid` |
-| Orgânico | `utm_medium = organic` |
+| Pago | `utm_medium = paid` ou `cpc` |
+| Orgânico | `utm_medium = social` |
 | Sem Rastreamento | Demais valores ou vazio |
 
 > **Em breve:** CAC e ROAS — aguardando integração da tabela Meta Ads no Supabase.
@@ -54,68 +65,94 @@ Distribuição das vendas fechadas por `utm_medium`:
 
 ```
 /
-├── index.html          # Dashboard completo (HTML + CSS + JS em arquivo único)
-└── README.md           # Este arquivo
+├── index.html      # Dashboard completo (HTML + CSS + JS em arquivo único)
+├── worker.js       # Código do Cloudflare Worker (referência — deploy feito no painel Cloudflare)
+└── README.md       # Este arquivo
 ```
 
-O projeto é intencionalmente simples: **um único arquivo HTML**, sem frameworks, sem build, sem dependências locais.
+---
+
+## Cloudflare Worker
+
+### O que é
+
+Um servidor intermediário gratuito que fica entre o dashboard e o Supabase. Ele recebe as requisições do browser, adiciona as chaves secretas e repassa ao Supabase. As chaves nunca chegam ao browser.
+
+### URL do Worker
+
+```
+https://aja-metrics-api.ferramentas-931.workers.dev
+```
+
+### Rotas disponíveis
+
+| Rota | Descrição |
+|---|---|
+| `/api/comercial` | Proxy para o projeto Supabase Comercial |
+| `/api/hub` | Proxy para o projeto Supabase Hub-mentorada |
+| `/health` | Health check — retorna `{"status":"ok"}` |
+
+### Variáveis de ambiente (Secrets)
+
+Configuradas em **Cloudflare → Workers & Pages → aja-metrics-api → Settings → Variables and Secrets**:
+
+| Nome | Descrição |
+|---|---|
+| `COMERCIAL_URL` | URL do projeto Supabase Comercial |
+| `COMERCIAL_KEY` | Chave anon do projeto Supabase Comercial |
+| `HUB_URL` | URL do projeto Supabase Hub-mentorada |
+| `HUB_KEY` | Chave anon do projeto Supabase Hub-mentorada |
+
+### Segurança
+
+- Lista branca de tabelas — só as 3 tabelas do projeto são acessíveis
+- CORS restrito ao domínio `https://ferramentasaja.github.io`
+- Apenas método GET permitido
+- Chaves criptografadas — nunca visíveis após salvas
+
+### Plano gratuito
+
+100.000 requisições/dia. O dashboard faz ~20 requisições por acesso (paginação de 19.944 registros). Limite praticamente inalcançável no uso atual.
+
+---
+
+## Atualização automática
+
+O dashboard não usa intervalo fixo. Ele calcula o tempo exato até o próximo horário programado:
+
+| Horário | Descrição |
+|---|---|
+| 07:00 | Atualização matinal |
+| 11:00 | Atualização do meio-dia |
+| 16:00 | Atualização da tarde |
+| 23:00 | Atualização noturna |
+
+A próxima atualização é exibida no rodapé do dashboard.
 
 ---
 
 ## Fontes de dados
 
-### Projeto Comercial (`deal_webhook_comercial` + `deal_utm_dim`)
+### Projeto Comercial
 
-- `deal_webhook_comercial` — estágio, montante, datas de cadastro e fechamento, closer, SDR
-- `deal_utm_dim` — parâmetros UTM (source, medium, campaign) vinculados por `id_negocio`
+**Tabela `deal_webhook_comercial`**
+- Campos: `id_negocio`, `estagio`, `montante`, `dtcadastro`, `dtfechamento`
+- Leads = registros cadastrados no período (`dtcadastro`)
+- Vendas = registros com `estagio IN ('Fechado Ganho', 'Ganho')` e `dtfechamento` no período
 
-> **Atenção:** o campo `dtcadastro` está no formato `DD-MM-YYYY HH:MM:SS`. A filtragem de datas é feita no client-side (JavaScript) para lidar com esse formato não-ISO.
+**Tabela `deal_utm_dim`**
+- Campos: `id_negocio`, `utm_medium`
+- Usada para classificar vendas por canal de origem
 
-### Projeto Hub Mentorada (`receita CS - Renovações e Ascensões [BASE TOTAL]`)
+> **Atenção:** `dtcadastro` está no formato `DD-MM-YYYY HH:MM:SS`. A filtragem é feita no client-side com parser de data robusto.
 
-- Colunas usadas: `tipo_venda`, `montante_numerico`, `data_referencia_fechamento_date`, `ano`
-- Registros com `ano = 1899` são descartados automaticamente (bug de conversão de data na origem)
+> **Paginação:** a tabela tem mais de 19.000 registros. O sistema busca em páginas de 1.000 registros para garantir que todos os dados sejam carregados.
 
----
+### Projeto Hub-mentorada
 
-## Como funciona
-
-```
-Browser do CEO
-    │
-    ├── Carrega index.html (GitHub Pages)
-    │
-    ├── Cria 2 clientes Supabase (Comercial + Hub)
-    │
-    ├── Busca todos os registros das tabelas relevantes
-    │
-    ├── Filtra por período no JavaScript
-    │
-    ├── Calcula métricas e deltas
-    │
-    └── Renderiza os cards — atualiza a cada 1 hora
-```
-
-Não há backend. Todas as operações acontecem no browser do usuário.
-
----
-
-## Segurança
-
-O dashboard usa a **chave `anon` (pública)** do Supabase — projetada para acesso de leitura no client-side.
-
-**Medidas obrigatórias no Supabase:**
-
-- [ ] Ativar **RLS (Row Level Security)** nas tabelas expostas
-- [ ] Criar policies de **somente leitura** (`SELECT`) para o role `anon`
-- [ ] Garantir que nenhuma tabela sensível esteja exposta sem RLS
-
-**Acesso ao dashboard:**
-
-- Protegido por senha via `sessionStorage` (proteção básica, adequada para uso interno)
-- O repositório GitHub **deve ser privado** para não expor as chaves `anon`
-
-> Após qualquer exposição acidental das chaves, regenere-as em **Supabase → Settings → API → Regenerate**.
+**Tabela `receita CS - Renovações e Ascensões [BASE TOTAL]`**
+- Campos: `tipo_venda`, `montante_numerico`, `data_referencia_fechamento_date`, `ano`, `assinatura`
+- Filtros aplicados: `ano ≠ 1899` (bug de conversão de data) e `assinatura = 'Assinado'`
 
 ---
 
@@ -127,12 +164,11 @@ O dashboard usa a **chave `anon` (pública)** do Supabase — projetada para ace
 2. Vá em **Settings → Pages**
 3. Em **Source**, selecione `Deploy from a branch`
 4. Branch: `main` / Pasta: `/ (root)`
-5. Salve — o GitHub gera a URL em alguns minutos
+5. Salve — a URL é gerada em alguns minutos
 
 ### Atualizar o dashboard
 
 ```bash
-# Substituir o arquivo e fazer push
 git add index.html
 git commit -m "atualização dashboard"
 git push
@@ -142,33 +178,20 @@ O GitHub Pages atualiza automaticamente em ~1 minuto após o push.
 
 ---
 
-## Configuração local (para desenvolvimento)
+## Atualizar o Worker
 
-Não é necessário Node.js ou nenhum build tool. Basta abrir o arquivo diretamente:
+Para editar o código do Worker:
 
-```bash
-# Opção 1 — abrir direto no browser
-open index.html   # macOS
-start index.html  # Windows
+1. Acesse **cloudflare.com → Workers & Pages → aja-metrics-api**
+2. Clique em **Edit code**
+3. Faça as alterações
+4. Clique em **Deploy**
 
-# Opção 2 — servidor local simples (evita CORS em alguns browsers)
-python3 -m http.server 8080
-# Acessar: http://localhost:8080
-```
+Para atualizar as chaves do Supabase:
 
----
-
-## Variáveis de configuração
-
-Todas as configurações estão no bloco `CONFIG` no topo do `<script>` em `index.html`:
-
-```javascript
-const SENHA         = 'sua-senha-aqui';
-const COMERCIAL_URL = 'https://xxxx.supabase.co';
-const COMERCIAL_KEY = 'eyJ...';
-const HUB_URL       = 'https://yyyy.supabase.co';
-const HUB_KEY       = 'eyJ...';
-```
+1. Acesse **Settings → Variables and Secrets**
+2. Clique no ícone de edição ao lado da variável
+3. Insira o novo valor e clique em **Deploy**
 
 ---
 
@@ -180,16 +203,17 @@ const HUB_KEY       = 'eyJ...';
 - [x] Filtro de período personalizável
 - [x] Comparativo automático com período anterior
 - [x] Tooltips com definição de cada métrica
-- [x] Auto-refresh a cada hora
+- [x] Atualização automática (7h, 11h, 16h, 23h)
+- [x] Cloudflare Worker — chaves do Supabase protegidas
+- [x] Layout responsivo (mobile, tablet, desktop)
 - [ ] CAC — aguardando tabela Meta Ads no Supabase
 - [ ] ROAS — aguardando tabela Meta Ads no Supabase
 - [ ] NPS — métricas em definição
 - [ ] Filtro por Closer / SDR
-- [ ] Gráfico de evolução temporal
 
 ---
 
 ## Elaborado por
 
-Área de Tecnologia e Operações — AJA Educação  
-Dados: Zoho CRM + Meta Ads via Supabase
+Área de Tecnologia e Operações — AJA Educação
+Dados: Zoho CRM + Supabase · Proxy: Cloudflare Worker
