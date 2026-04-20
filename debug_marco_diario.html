@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Debug — Receita Vendas Novas Março 2026</title>
+<style>
+  body { font-family: monospace; background: #0A0A0F; color: #E0E0E0; padding: 20px; font-size: 12px; }
+  h1 { color: #FFF; font-size: 16px; margin-bottom: 4px; }
+  .sub { color: #666; margin-bottom: 20px; font-size: 11px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+  th { background: #1A1A2A; color: #18A85A; padding: 7px 12px; text-align: left; border-bottom: 1px solid #222; }
+  td { padding: 6px 12px; border-bottom: 1px solid #1A1A2A; }
+  tr:hover td { background: #111120; }
+  .total { color: #18A85A; font-weight: bold; font-size: 14px; padding: 10px 12px; background: #0D2D1A; }
+  .warn { color: #F59E0B; }
+  .loading { color: #666; }
+</style>
+</head>
+<body>
+<h1>Receita Vendas Novas — Março 2026 (dia a dia)</h1>
+<div class="sub">Lógica: estagio IN ('Ganho','Fechado Ganho') + dtfechamento em março + dedup por maior id por id_negocio</div>
+<div id="out" class="loading">Carregando dados do Worker...</div>
+
+<script>
+const WORKER = 'https://aja-metrics-api.ferramentas-931.workers.dev';
+
+function parseMontante(v) {
+  if (v==null) return 0;
+  if (typeof v === 'number') return v;
+  if (typeof v === 'object') v = v.value || v.montante || Object.values(v)[0] || 0;
+  const str = String(v).trim();
+  if (/^\d+\.\d+$/.test(str)) return parseFloat(str);
+  const clean = str.replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.');
+  const n = parseFloat(clean);
+  return isNaN(n) ? 0 : n;
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  str = String(str).trim();
+  let m = str.match(/^(\d{2})-(\d{2})-(\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  return null;
+}
+
+async function fetchAll(table, cols) {
+  const PAGE = 1000;
+  let all = [], from = 0, done = false;
+  while (!done) {
+    const url = `${WORKER}/api/comercial?table=${encodeURIComponent(table)}&select=${encodeURIComponent(cols)}&range=${from}-${from+PAGE-1}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    all = all.concat(data || []);
+    if (!data || data.length < PAGE) done = true;
+    else from += PAGE;
+  }
+  return all;
+}
+
+async function run() {
+  const out = document.getElementById('out');
+  out.textContent = 'Buscando registros...';
+
+  const deals = await fetchAll('deal_webhook_comercial', 'id,id_negocio,estagio,montante,dtfechamento');
+
+  const s = new Date(2026, 2, 1);
+  const e = new Date(2026, 2, 31, 23, 59, 59);
+  const FECHADOS = ['ganho','fechado ganho'];
+
+  // Filtra fechados em março
+  const marzo = deals.filter(r => {
+    const est = (r.estagio||'').toLowerCase().trim();
+    const isFechado = FECHADOS.some(f => est === f || est.startsWith('fechado ganho'));
+    const d = parseDate(r.dtfechamento);
+    return isFechado && d && d >= s && d <= e;
+  });
+
+  // Dedup por maior id
+  const mp = {};
+  marzo.forEach(r => {
+    const rid = r.id_negocio;
+    if (!mp[rid] || Number(r.id) > Number(mp[rid].id)) mp[rid] = r;
+  });
+  const unicos = Object.values(mp);
+
+  // Agrupa por dia
+  const porDia = {};
+  unicos.forEach(r => {
+    const d = parseDate(r.dtfechamento);
+    const key = d.toLocaleDateString('pt-BR');
+    if (!porDia[key]) porDia[key] = { data: d, deals: [], receita: 0 };
+    porDia[key].deals.push(r);
+    porDia[key].receita += parseMontante(r.montante);
+  });
+
+  // Ordena por data
+  const dias = Object.values(porDia).sort((a,b) => a.data - b.data);
+  const totalReceita = dias.reduce((a,d) => a + d.receita, 0);
+  const totalDeals = unicos.length;
+
+  let html = `<table>
+    <tr>
+      <th>Data</th>
+      <th>Negócios</th>
+      <th>Receita do dia</th>
+      <th>Receita acumulada</th>
+    </tr>`;
+
+  let acum = 0;
+  // Mostra todos os dias de março, mesmo sem venda
+  for (let day = 1; day <= 31; day++) {
+    const d = new Date(2026, 2, day);
+    const key = d.toLocaleDateString('pt-BR');
+    const info = porDia[key];
+    acum += info ? info.receita : 0;
+    const receita = info ? 'R$ ' + info.receita.toLocaleString('pt-BR', {minimumFractionDigits:2}) : '—';
+    const acumFmt = 'R$ ' + acum.toLocaleString('pt-BR', {minimumFractionDigits:2});
+    html += `<tr>
+      <td>${d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'})}</td>
+      <td>${info ? info.deals.length : '0'}</td>
+      <td>${receita}</td>
+      <td>${acumFmt}</td>
+    </tr>`;
+  }
+
+  html += `<tr>
+    <td colspan="1" class="total">TOTAL MARÇO</td>
+    <td class="total">${totalDeals} negócios únicos</td>
+    <td class="total">R$ ${totalReceita.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+    <td class="total">—</td>
+  </tr></table>`;
+
+  out.innerHTML = html;
+}
+
+run().catch(e => { document.getElementById('out').textContent = 'Erro: ' + e.message; });
+</script>
+</body>
+</html>
