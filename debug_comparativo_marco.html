@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Comparativo Março 2026 — Dashboard vs Looker</title>
+<style>
+  body { font-family: monospace; background: #0A0A0F; color: #E0E0E0; padding: 20px; font-size: 12px; }
+  h1   { color: #FFF; font-size: 15px; margin-bottom: 4px; }
+  .sub { color: #666; margin-bottom: 20px; font-size: 11px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+  th { background: #1A1A2A; color: #18A85A; padding: 7px 12px; text-align: right; border-bottom: 1px solid #222; }
+  th:first-child { text-align: left; }
+  td { padding: 6px 12px; border-bottom: 1px solid #1A1A2A; text-align: right; }
+  td:first-child { text-align: left; }
+  tr:hover td { background: #111120; }
+  .ok   { color: #18A85A; }
+  .warn { color: #F59E0B; }
+  .err  { color: #EF4444; }
+  .total-row td { font-weight: bold; background: #0D1A10; color: #18A85A; border-top: 1px solid #18A85A; }
+  .summary { margin-top: 20px; padding: 14px; background: #111120; border-radius: 8px; line-height: 1.8; }
+  .loading { color: #666; }
+</style>
+</head>
+<body>
+<h1>Receita Vendas Novas — Março 2026: Dashboard vs Looker Studio</h1>
+<div class="sub">Dashboard: deal_webhook_comercial | Fechado Ganho/Ganho | dtfechamento | dedup maior id<br>
+Looker: dados exportados diretamente do Looker Studio</div>
+<div id="out" class="loading">Buscando dados do Supabase via Worker...</div>
+
+<script>
+const WORKER = 'https://aja-metrics-api.ferramentas-931.workers.dev';
+
+// Referência Looker Studio
+const LOOKER = {
+  2:{v:2,f:72000}, 3:{v:4,f:84603}, 4:{v:3,f:88200}, 5:{v:4,f:124000},
+  6:{v:3,f:54000}, 9:{v:2,f:48000}, 11:{v:5,f:162000}, 12:{v:4,f:126000},
+  13:{v:1,f:30000}, 16:{v:6,f:125000}, 17:{v:5,f:174000}, 18:{v:5,f:159000},
+  19:{v:1,f:36000}, 20:{v:3,f:82203}, 23:{v:3,f:90000}, 24:{v:3,f:54000},
+  25:{v:6,f:144000}, 26:{v:4,f:138000}, 27:{v:2,f:72000}, 28:{v:1,f:18000},
+  30:{v:1,f:18000}, 31:{v:17,f:419606}
+};
+
+function parseMontante(v) {
+  if (v==null) return 0;
+  if (typeof v === 'number') return v;
+  if (typeof v === 'object') v = v.value || v.montante || Object.values(v)[0] || 0;
+  const str = String(v).trim();
+  if (/^\d+\.\d+$/.test(str)) return parseFloat(str);
+  const clean = str.replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.');
+  const n = parseFloat(clean);
+  return isNaN(n) ? 0 : n;
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  str = String(str).trim();
+  let m = str.match(/^(\d{2})-(\d{2})-(\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  return null;
+}
+
+async function fetchAll(table, cols) {
+  const PAGE = 1000;
+  let all = [], from = 0, done = false;
+  while (!done) {
+    const url = `${WORKER}/api/comercial?table=${encodeURIComponent(table)}&select=${encodeURIComponent(cols)}&range=${from}-${from+PAGE-1}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    all = all.concat(data||[]);
+    if (!data || data.length < PAGE) done = true;
+    else from += PAGE;
+  }
+  return all;
+}
+
+function fmtBRL(v) {
+  return 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+}
+
+async function run() {
+  const out = document.getElementById('out');
+
+  const deals = await fetchAll('deal_webhook_comercial', 'id,id_negocio,estagio,montante,dtfechamento');
+
+  const s = new Date(2026,2,1), e = new Date(2026,2,31,23,59,59);
+  const FECHADOS = ['ganho','fechado ganho'];
+
+  // Filtra março
+  const marzo = deals.filter(r => {
+    const est = (r.estagio||'').toLowerCase().trim();
+    const ok  = FECHADOS.some(f => est===f || est.startsWith('fechado ganho'));
+    const d   = parseDate(r.dtfechamento);
+    return ok && d && d>=s && d<=e;
+  });
+
+  // Dedup por maior id
+  const mp = {};
+  marzo.forEach(r => {
+    if (!mp[r.id_negocio] || Number(r.id) > Number(mp[r.id_negocio].id)) mp[r.id_negocio] = r;
+  });
+  const unicos = Object.values(mp);
+
+  // Agrupa por dia
+  const porDia = {};
+  unicos.forEach(r => {
+    const d   = parseDate(r.dtfechamento);
+    const dia = d.getDate();
+    if (!porDia[dia]) porDia[dia] = {v:0, f:0};
+    porDia[dia].v++;
+    porDia[dia].f += parseMontante(r.montante);
+  });
+
+  let totalDashV=0, totalDashF=0, totalLookV=0, totalLookF=0;
+  let discrepancias = [];
+
+  let html = `<table>
+    <tr>
+      <th>Dia</th>
+      <th>Vendas (Dash)</th><th>Vendas (Look)</th><th>Δ Vendas</th>
+      <th>Receita (Dash)</th><th>Receita (Look)</th><th>Δ Receita</th>
+    </tr>`;
+
+  for (let dia=1; dia<=31; dia++) {
+    const dash  = porDia[dia] || {v:0,f:0};
+    const look  = LOOKER[dia] || {v:0,f:0};
+    const dv    = dash.v - look.v;
+    const df    = dash.f - look.f;
+    const temDado = dash.v>0 || look.v>0;
+    if (!temDado) continue;
+
+    totalDashV += dash.v; totalDashF += dash.f;
+    totalLookV += look.v; totalLookF += look.f;
+
+    const cls = (dv===0 && Math.abs(df)<1) ? 'ok' : 'err';
+    if (cls==='err') discrepancias.push({dia, dv, df, dash, look});
+
+    html += `<tr>
+      <td>${dia}/03</td>
+      <td>${dash.v}</td><td>${look.v}</td>
+      <td class="${cls}">${dv>0?'+':''}${dv}</td>
+      <td>${fmtBRL(dash.f)}</td><td>${fmtBRL(look.f)}</td>
+      <td class="${cls}">${df>0?'+':''}${fmtBRL(df)}</td>
+    </tr>`;
+  }
+
+  const tvCls = totalDashV===totalLookV?'ok':'err';
+  const tfCls = Math.abs(totalDashF-totalLookF)<1?'ok':'err';
+  html += `<tr class="total-row">
+    <td>TOTAL</td>
+    <td class="${tvCls}">${totalDashV}</td><td>${totalLookV}</td>
+    <td class="${tvCls}">${totalDashV-totalLookV>0?'+':''}${totalDashV-totalLookV}</td>
+    <td class="${tfCls}">${fmtBRL(totalDashF)}</td><td>${fmtBRL(totalLookF)}</td>
+    <td class="${tfCls}">${totalDashF-totalLookF>0?'+':''}${fmtBRL(totalDashF-totalLookF)}</td>
+  </tr></table>`;
+
+  // Resumo
+  html += `<div class="summary">`;
+  html += `<strong style="color:#FFF">RESUMO</strong><br>`;
+  html += `Vendas Dashboard: <span class="${tvCls}">${totalDashV}</span> | Looker: ${totalLookV} | Δ: <span class="${tvCls}">${totalDashV-totalLookV}</span><br>`;
+  html += `Receita Dashboard: <span class="${tfCls}">${fmtBRL(totalDashF)}</span> | Looker: ${fmtBRL(totalLookF)} | Δ: <span class="${tfCls}">${fmtBRL(totalDashF-totalLookF)}</span><br><br>`;
+
+  if (discrepancias.length===0) {
+    html += `<span class="ok">✅ Nenhuma discrepância encontrada — dados batem com o Looker!</span>`;
+  } else {
+    html += `<span class="err">⚠ ${discrepancias.length} dia(s) com discrepância:</span><br>`;
+    discrepancias.forEach(d => {
+      html += `• Dia ${d.dia}/03: vendas ${d.dash.v} vs ${d.look.v} (Δ${d.dv}) | receita ${fmtBRL(d.dash.f)} vs ${fmtBRL(d.look.f)} (Δ${fmtBRL(d.df)})<br>`;
+    });
+  }
+  html += `</div>`;
+
+  out.innerHTML = html;
+}
+
+run().catch(e => { document.getElementById('out').textContent = 'Erro: '+e.message; });
+</script>
+</body>
+</html>
