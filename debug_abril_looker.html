@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Validação — Lógica Looker — Abril 2026</title>
+<style>
+  body { font-family: monospace; background: #0A0A0F; color: #E0E0E0; padding: 24px; font-size: 12px; }
+  h1   { color: #FFF; font-size: 15px; margin-bottom: 4px; }
+  .sub { color: #666; margin-bottom: 20px; font-size: 11px; line-height: 1.6; }
+  .card { background: #111120; border: 1px solid #1A1A2A; border-radius: 8px; padding: 16px; margin-bottom: 12px; display: inline-block; min-width: 240px; margin-right: 12px; vertical-align: top; }
+  .card-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .card-val   { font-size: 28px; font-weight: bold; color: #18A85A; }
+  .card-ref   { font-size: 11px; color: #888; margin-top: 4px; }
+  .card-diff  { font-size: 12px; margin-top: 4px; }
+  .ok  { color: #18A85A; }
+  .err { color: #EF4444; }
+  table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+  th { background: #1A1A2A; color: #18A85A; padding: 7px 12px; text-align: right; border-bottom: 1px solid #222; }
+  th:first-child { text-align: left; }
+  td { padding: 6px 12px; border-bottom: 1px solid #1A1A2A; text-align: right; }
+  td:first-child { text-align: left; }
+  tr:hover td { background: #111120; }
+  .total-row td { font-weight: bold; background: #0D1A10; color: #18A85A; border-top: 1px solid #18A85A; }
+  .loading { color: #666; font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>Validação — Lógica Looker Studio — 01/04 a 22/04/2026</h1>
+<div class="sub">
+  Lógica aplicada:<br>
+  • COUNT DISTINCT id_negocio WHERE estagio IN ('Ganho','Fechado Ganho') AND dtfechamento no período<br>
+  • SUM(montante) dos mesmos registros — sem dedup, igual ao Looker<br>
+  <br>
+  Referência Looker: <strong style="color:#FFF">65 vendas</strong> | <strong style="color:#FFF">R$ 1.828.700,00</strong>
+</div>
+
+<div id="cards" class="loading">Carregando...</div>
+<div id="tabela"></div>
+
+<script>
+const WORKER = 'https://aja-metrics-api.ferramentas-931.workers.dev';
+
+// Referência Looker
+const REF_VENDAS  = 65;
+const REF_RECEITA = 1828700;
+
+function parseMontante(v) {
+  if (v == null) return 0;
+  if (typeof v === 'number') return v;
+  if (typeof v === 'object') v = v.value || v.montante || Object.values(v)[0] || 0;
+  const str = String(v).trim();
+  // Formato americano: "36000.00"
+  if (/^\d+\.\d+$/.test(str)) return parseFloat(str);
+  // Formato BR: "R$ 36.000,00"
+  const clean = str.replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.');
+  const n = parseFloat(clean);
+  return isNaN(n) ? 0 : n;
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  str = String(str).trim();
+  let m = str.match(/^(\d{2})-(\d{2})-(\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  return null;
+}
+
+async function fetchAll(table, cols) {
+  const PAGE = 1000;
+  let all = [], from = 0, done = false;
+  while (!done) {
+    const url = `${WORKER}/api/comercial?table=${encodeURIComponent(table)}&select=${encodeURIComponent(cols)}&range=${from}-${from+PAGE-1}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    all = all.concat(data||[]);
+    if (!data || data.length < PAGE) done = true;
+    else from += PAGE;
+  }
+  return all;
+}
+
+function fmtBRL(v) {
+  return 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+}
+
+async function run() {
+  const cards  = document.getElementById('cards');
+  const tabela = document.getElementById('tabela');
+
+  const deals = await fetchAll('deal_webhook_comercial', 'id,id_negocio,estagio,montante,dtfechamento');
+
+  // Período: 01/04 a 22/04/2026
+  const s = new Date(2026, 3, 1);
+  const e = new Date(2026, 3, 22, 23, 59, 59);
+
+  const FECHADOS = ['ganho','fechado ganho'];
+
+  // Filtro igual ao Looker — SEM dedup
+  const filtrados = deals.filter(r => {
+    const est = (r.estagio||'').toLowerCase().trim();
+    const ok  = FECHADOS.some(f => est === f || est.startsWith('fechado ganho'));
+    const d   = parseDate(r.dtfechamento);
+    return ok && d && d >= s && d <= e;
+  });
+
+  // COUNT DISTINCT id_negocio
+  const vendasUniq = new Set(filtrados.map(r => r.id_negocio)).size;
+
+  // SUM(montante) — soma tudo sem dedup, igual Looker
+  const receita = filtrados.reduce((a, r) => a + parseMontante(r.montante), 0);
+
+  // Diagnóstico: quantas linhas por id_negocio
+  const contPorNeg = {};
+  filtrados.forEach(r => {
+    contPorNeg[r.id_negocio] = (contPorNeg[r.id_negocio]||0) + 1;
+  });
+  const comDuplicatas = Object.values(contPorNeg).filter(c => c > 1).length;
+  const totalLinhas   = filtrados.length;
+
+  // Resultado vs referência
+  const diffV = vendasUniq - REF_VENDAS;
+  const diffF = receita - REF_RECEITA;
+  const okV   = diffV === 0;
+  const okF   = Math.abs(diffF) < 1;
+
+  cards.innerHTML = `
+    <div class="card">
+      <div class="card-label">Vendas Novas (Dashboard)</div>
+      <div class="card-val">${vendasUniq}</div>
+      <div class="card-ref">Looker: ${REF_VENDAS}</div>
+      <div class="card-diff ${okV?'ok':'err'}">${okV ? '✅ Bate!' : '❌ Δ ' + (diffV>0?'+':'') + diffV}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Receita Vendas Novas (Dashboard)</div>
+      <div class="card-val" style="font-size:20px">${fmtBRL(receita)}</div>
+      <div class="card-ref">Looker: ${fmtBRL(REF_RECEITA)}</div>
+      <div class="card-diff ${okF?'ok':'err'}">${okF ? '✅ Bate!' : '❌ Δ ' + fmtBRL(diffF)}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Diagnóstico</div>
+      <div class="card-val" style="font-size:18px;color:#F59E0B">${totalLinhas}</div>
+      <div class="card-ref">Linhas brutas no período</div>
+      <div class="card-ref">${vendasUniq} id_negocio únicos</div>
+      <div class="card-ref">${comDuplicatas} negócios com múltiplas linhas</div>
+    </div>
+  `;
+
+  // Tabela dia a dia
+  const porDia = {};
+  filtrados.forEach(r => {
+    const d   = parseDate(r.dtfechamento);
+    const dia = d.getDate();
+    if (!porDia[dia]) porDia[dia] = { linhas: 0, uniq: new Set(), receita: 0 };
+    porDia[dia].linhas++;
+    porDia[dia].uniq.add(r.id_negocio);
+    porDia[dia].receita += parseMontante(r.montante);
+  });
+
+  let html = `<table>
+    <tr>
+      <th>Dia</th>
+      <th>Linhas brutas</th>
+      <th>id_negocio únicos</th>
+      <th>Receita (SUM bruto)</th>
+    </tr>`;
+
+  let totLinhas=0, totUniq=new Set(), totReceita=0;
+  for (let dia=1; dia<=22; dia++) {
+    const d = porDia[dia];
+    if (!d) continue;
+    totLinhas   += d.linhas;
+    d.uniq.forEach(x => totUniq.add(x));
+    totReceita  += d.receita;
+    html += `<tr>
+      <td>${String(dia).padStart(2,'0')}/04</td>
+      <td>${d.linhas}</td>
+      <td>${d.uniq.size}</td>
+      <td>${fmtBRL(d.receita)}</td>
+    </tr>`;
+  }
+
+  html += `<tr class="total-row">
+    <td>TOTAL</td>
+    <td>${totLinhas}</td>
+    <td>${totUniq.size}</td>
+    <td>${fmtBRL(totReceita)}</td>
+  </tr></table>`;
+
+  tabela.innerHTML = html;
+}
+
+run().catch(e => {
+  document.getElementById('cards').textContent = 'Erro: ' + e.message;
+});
+</script>
+</body>
+</html>
