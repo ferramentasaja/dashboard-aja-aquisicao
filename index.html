@@ -302,7 +302,7 @@ body{
 .badge-flat{background:var(--surface2);color:var(--muted);}
 .delta-vs{font-size:10px;color:var(--faint);font-weight:500;}
 
-/* Sub-info dentro do card (Tx Conv / Receita complementar) */
+/* Sub-info dentro do card (Tx Conv / Receita complementar / Meta) */
 .kpi-sub{
   font-size:11px;color:var(--muted);
   margin-top:6px;
@@ -577,6 +577,7 @@ body{
         </div>
         <div class="kpi-value loading" id="val-receita-total">R$0</div>
         <div class="kpi-delta" id="delta-receita-total"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+        <div class="kpi-sub">Meta do <span id="esc-recTotal">período</span>: <strong id="meta-recTotal">—</strong></div>
       </div>
 
       <!-- Receita Vendas Novas -->
@@ -591,6 +592,7 @@ body{
         </div>
         <div class="kpi-value loading" id="val-receita-vendas">R$0</div>
         <div class="kpi-delta" id="delta-receita-vendas"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+        <div class="kpi-sub">Meta do <span id="esc-recVN">período</span>: <strong id="meta-recVN">—</strong></div>
       </div>
 
       <!-- Receita Ascensões e Renovações -->
@@ -605,6 +607,7 @@ body{
         </div>
         <div class="kpi-value loading" id="val-receita-ret">R$0</div>
         <div class="kpi-delta" id="delta-receita-ret"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+        <div class="kpi-sub">Meta do <span id="esc-recRet">período</span>: <strong id="meta-recRet">—</strong></div>
       </div>
 
     </div>
@@ -1384,16 +1387,28 @@ function render(cur,prev,hasCmp,curMeta,prevMeta,metasData,s,e) {
   sd('delta-roas',   hasCmp && roas!=null && roasPrev!=null ? dlta(roas, roasPrev) : {b:'flat',l:'—'}, vs);
   sd('delta-cac',    hasCmp && cac!=null  && cacPrev!=null  ? dltaInverso(cac, cacPrev) : {b:'flat',l:'—'}, vs);
 
-  // Donuts (só nas 3 receitas)
+  // Donuts (só nas 3 receitas) + Meta abaixo do valor R$
   if(metasData && metasData.length){
     const m = getMetaPorPeriodo(metasData, s, e);
     renderMiniDonut('donut-recTotal', cur.recTotal,      m.metaTotal);
     renderMiniDonut('donut-recVN',    cur.receitaVendas, m.metaVN);
     renderMiniDonut('donut-recRet',   cur.recRetencao,   m.metaRet);
+
+    // Meta abaixo do valor R$
+    document.getElementById('esc-recTotal').textContent  = m.escopo;
+    document.getElementById('esc-recVN').textContent     = m.escopo;
+    document.getElementById('esc-recRet').textContent    = m.escopo;
+    document.getElementById('meta-recTotal').textContent = fmtBRL(m.metaTotal);
+    document.getElementById('meta-recVN').textContent    = fmtBRL(m.metaVN);
+    document.getElementById('meta-recRet').textContent   = fmtBRL(m.metaRet);
   } else {
     renderMiniDonut('donut-recTotal', 0, 0);
     renderMiniDonut('donut-recVN',    0, 0);
     renderMiniDonut('donut-recRet',   0, 0);
+
+    document.getElementById('meta-recTotal').textContent = '—';
+    document.getElementById('meta-recVN').textContent    = '—';
+    document.getElementById('meta-recRet').textContent   = '—';
   }
 
   // Donut + legenda canais
