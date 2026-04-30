@@ -6,39 +6,47 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>AJA Metrics</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/light.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --ink:        #0A0A0F;
   --ink2:       #16161F;
   --ink3:       #1E1E2A;
-  --surface:    #F5F4F1;
-  --surface2:   #EEECEA;
+  --surface:    #F7F6F3;
+  --surface2:   #EFEDE9;
   --white:      #FFFFFF;
-  --border:     #E4E2DE;
+  --border:     #E6E4E0;
   --border-dark:#2A2A38;
-  --text:       #111118;
-  --muted:      #6E6E80;
-  --faint:      #B4B4C4;
+  --text:       #0F1115;
+  --muted:      #6B6B7C;
+  --faint:      #A8A8B8;
   --accent:     #C8A96E;
-  --accent2:    #A08040;
-  --green:      #1A9E55;
-  --green-bg:   #EAF7EF;
-  --green-text: #0E6E38;
-  --red:        #C83232;
-  --red-bg:     #FAEAEA;
+  --green:      #15A357;
+  --green-bg:   #E7F6EE;
+  --green-text: #0B6A36;
+  --red:        #D43A3A;
+  --red-bg:     #FBE9E9;
   --red-text:   #8E2020;
+  --amber:      #C28A1E;
+  --amber-bg:   #FBF1DC;
+  --amber-text: #8A5F0F;
   --tt-bg:      #111118;
   --tt-text:    #E8E8EE;
 }
 body{
-  font-family:'DM Sans',system-ui,sans-serif;
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
   background:var(--surface);
   color:var(--text);
   min-height:100vh;
   font-size:13px;
   line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
 
 /* ── LOGIN ── */
@@ -47,22 +55,6 @@ body{
   display:flex;align-items:center;justify-content:center;
   background:var(--ink);
   position:relative;overflow:hidden;
-}
-#login-screen::before{
-  content:'';position:absolute;
-  width:600px;height:600px;
-  border-radius:50%;
-  border:1px solid rgba(200,169,110,0.08);
-  top:50%;left:50%;transform:translate(-50%,-50%);
-  pointer-events:none;
-}
-#login-screen::after{
-  content:'';position:absolute;
-  width:900px;height:900px;
-  border-radius:50%;
-  border:1px solid rgba(200,169,110,0.04);
-  top:50%;left:50%;transform:translate(-50%,-50%);
-  pointer-events:none;
 }
 .login-card{
   position:relative;z-index:1;
@@ -85,53 +77,23 @@ body{
   color:var(--white);letter-spacing:0.08em;
   margin-bottom:4px;
 }
-.login-sub{font-size:11px;color:#444458;margin-bottom:8px;}
-.login-divider{
-  width:32px;height:1px;background:var(--accent);
-  margin:16px auto 24px;opacity:0.5;
-}
-.login-label{font-size:10px;color:#444458;text-align:left;margin-bottom:8px;letter-spacing:0.08em;text-transform:uppercase;}
-.login-input{
-  width:100%;
-  background:rgba(255,255,255,0.04);
-  border:0.5px solid var(--border-dark);
-  border-radius:8px;
-  padding:12px 16px;
-  font-size:14px;color:var(--white);
-  font-family:'DM Mono',monospace;
-  margin-bottom:14px;outline:none;
-  transition:border-color 0.2s;
-  text-align:center;letter-spacing:0.12em;
-}
-.login-input::placeholder{color:#333345;letter-spacing:0.3em;font-family:'DM Sans',sans-serif;}
-.login-input:focus{border-color:var(--accent);}
-.login-btn{
-  width:100%;
-  background:var(--accent);
-  color:var(--ink);border:none;
-  border-radius:8px;padding:12px;
-  font-size:12px;font-weight:600;
-  font-family:'Syne',sans-serif;
-  letter-spacing:0.08em;text-transform:uppercase;
-  cursor:pointer;transition:opacity 0.18s,transform 0.1s;
-}
-.login-btn:hover{opacity:0.88;}
-.login-btn:active{transform:scale(0.98);}
-.login-error{font-size:11px;color:#E06060;margin-top:10px;min-height:16px;}
+.login-sub{font-size:11px;color:#6B6B85;margin-bottom:8px;}
 
 /* ── DASHBOARD ── */
 #dashboard{display:none;}
 
-/* Header */
+/* Header — agora abriga título + filtros */
 .header{
   background:var(--ink);
   padding:0 28px;
-  height:56px;
+  min-height:64px;
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:200;
   border-bottom:0.5px solid var(--border-dark);
+  gap:24px;
+  flex-wrap:wrap;
 }
-.header-left{display:flex;align-items:center;gap:14px;}
+.header-left{display:flex;align-items:center;gap:14px;flex-shrink:0;}
 .logo-box{
   width:32px;height:32px;border-radius:7px;
   background:var(--white);
@@ -143,106 +105,138 @@ body{
   font-size:14px;font-weight:700;
   color:var(--white);letter-spacing:0.1em;
 }
-.header-sep{width:1px;height:16px;background:var(--border-dark);}
-.header-title{font-size:11px;color:#8888A8;font-weight:400;letter-spacing:0.02em;}
-.header-right{display:flex;align-items:center;gap:10px;}
-.refresh-chip{
-  font-size:10px;color:#44445A;
-  background:rgba(255,255,255,0.04);
+.header-sep{width:1px;height:18px;background:var(--border-dark);}
+.header-title{font-size:11px;color:#9090AC;font-weight:500;letter-spacing:0.02em;}
+.header-right{
+  display:flex;align-items:center;gap:10px;
+  flex-wrap:wrap;
+  margin-left:auto;
+  padding:10px 0;
+}
+.header-fl{font-size:10px;color:#7A7A92;letter-spacing:0.06em;text-transform:uppercase;font-weight:500;}
+.header-input{
+  background:rgba(255,255,255,0.05);
   border:0.5px solid var(--border-dark);
-  border-radius:4px;padding:3px 9px;
-  font-family:'DM Mono',monospace;
+  border-radius:6px;padding:7px 11px;font-size:12px;
+  color:var(--white);outline:none;
+  font-family:'Inter',sans-serif;
+  cursor:pointer;
+  min-width:200px;
+  transition:border-color 0.15s,background 0.15s;
+  font-weight:500;
 }
-.logout-btn{
-  font-size:10px;color:#333345;letter-spacing:0.05em;
-  background:none;border:none;cursor:pointer;padding:4px 6px;
-  text-transform:uppercase;transition:color 0.15s;
+.header-input:hover{background:rgba(255,255,255,0.08);}
+.header-input:focus{border-color:var(--accent);}
+.header-input.compact{min-width:auto;padding:7px 11px;}
+.header-input::placeholder{color:#5A5A78;}
+.header-select{
+  background:rgba(255,255,255,0.05);
+  border:0.5px solid var(--border-dark);
+  border-radius:6px;padding:7px 11px;font-size:12px;
+  color:var(--white);outline:none;
+  font-family:'Inter',sans-serif;
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8A8C0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 8px center;
+  padding-right:28px;
+  font-weight:500;
 }
-.logout-btn:hover{color:#666680;}
-
-/* Filter bar */
-.filter-bar{
-  background:var(--white);
-  border-bottom:0.5px solid var(--border);
-  padding:0 28px;
-  height:44px;
-  display:flex;align-items:center;gap:14px;
-  position:sticky;top:56px;z-index:100;
-}
-.fl{font-size:10px;color:var(--muted);letter-spacing:0.05em;white-space:nowrap;}
-.fi{
-  background:transparent;
-  border:0.5px solid var(--border);
-  border-radius:5px;padding:4px 9px;font-size:11px;
-  color:var(--text);outline:none;font-family:'DM Sans',sans-serif;
-  cursor:pointer;transition:border-color 0.15s;
-}
-.fi:focus{border-color:var(--text);}
-.fsep{width:0.5px;height:16px;background:var(--border);}
+.header-select option{background:var(--ink);color:var(--white);}
 .apply-btn{
-  background:var(--ink);color:var(--white);border:none;
-  border-radius:5px;padding:5px 14px;font-size:10px;
-  font-family:'Syne',sans-serif;font-weight:600;
-  letter-spacing:0.06em;text-transform:uppercase;
-  cursor:pointer;transition:opacity 0.15s;
+  background:var(--accent);
+  color:var(--ink);
+  border:none;
+  border-radius:6px;padding:7px 16px;font-size:11px;
+  font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;
+  cursor:pointer;transition:opacity 0.15s,transform 0.1s;
+  font-family:'Inter',sans-serif;
 }
-.apply-btn:hover{opacity:0.8;}
-.compare-note{font-size:10px;color:var(--faint);margin-left:auto;font-family:'DM Mono',monospace;}
+.apply-btn:hover{opacity:0.88;}
+.apply-btn:active{transform:scale(0.98);}
+.compare-note{font-size:10px;color:#6E6E88;font-family:'Inter',sans-serif;font-weight:500;}
 
 /* Content */
-.content{padding:28px 28px 48px;max-width:1480px;margin:0 auto;}
+.content{padding:28px 28px 28px;max-width:1480px;margin:0 auto;}
 
 /* Section header */
 .sec-head{
-  display:flex;align-items:baseline;gap:12px;
-  margin-bottom:14px;margin-top:28px;
+  display:flex;align-items:baseline;gap:14px;
+  margin-bottom:16px;margin-top:8px;
 }
+.sec-head:not(:first-child){margin-top:32px;}
 .sec-title{
-  font-family:'Syne',sans-serif;
-  font-size:11px;font-weight:600;
-  color:var(--text);letter-spacing:0.1em;text-transform:uppercase;
+  font-family:'Inter',sans-serif;
+  font-size:11px;font-weight:700;
+  color:var(--text);letter-spacing:0.14em;text-transform:uppercase;
 }
 .sec-line{flex:1;height:0.5px;background:var(--border);}
-.sec-sub{font-size:10px;color:var(--faint);}
 
 /* Grids */
-.grid{display:grid;gap:10px;}
-.g5{grid-template-columns:repeat(5,minmax(0,1fr));}
-.g4{grid-template-columns:repeat(4,minmax(0,1fr));}
+.grid{display:grid;gap:12px;}
 .g3{grid-template-columns:repeat(3,minmax(0,1fr));}
+.g2-detail{grid-template-columns:1.1fr 1.9fr;gap:12px;}
 
-/* Card */
-.card{
+/* ── KPI Card (estilo executivo novo) ── */
+.kpi{
   background:var(--white);
   border:0.5px solid var(--border);
-  border-radius:12px;
-  padding:20px;
+  border-radius:14px;
+  padding:18px 18px 16px;
   position:relative;
   transition:box-shadow 0.2s,transform 0.15s;
+  display:flex;flex-direction:column;
+  min-height:130px;
 }
-.card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.05);transform:translateY(-1px);}
-.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.card-label{font-size:10px;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;}
+.kpi:hover{box-shadow:0 4px 18px rgba(0,0,0,0.04);transform:translateY(-1px);}
+
+.kpi-top{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:12px;margin-bottom:14px;
+}
+.kpi-top-left{
+  display:flex;align-items:center;gap:9px;
+  min-width:0;flex:1;
+}
+.kpi-icon{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  color:var(--text);
+}
+.kpi-icon svg{width:15px;height:15px;}
+.kpi-label{
+  font-size:11px;color:var(--muted);
+  letter-spacing:0.01em;
+  font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 
 /* Tooltip */
-.tt{position:relative;display:inline-flex;}
+.tt{position:relative;display:inline-flex;flex-shrink:0;}
 .tt-icon{
   width:14px;height:14px;border-radius:50%;
   border:0.5px solid var(--border);
   display:flex;align-items:center;justify-content:center;
   font-size:8px;color:var(--faint);cursor:default;
   transition:border-color 0.15s,color 0.15s;user-select:none;
+  font-family:'Inter',sans-serif;font-style:italic;font-weight:600;
 }
 .tt-icon:hover{border-color:var(--muted);color:var(--muted);}
 .tt-box{
   position:absolute;bottom:calc(100% + 8px);left:50%;
   transform:translateX(-50%);
   background:var(--tt-bg);color:var(--tt-text);
-  font-size:11px;line-height:1.6;
+  font-size:11px;line-height:1.55;
   padding:9px 13px;border-radius:8px;
   pointer-events:none;opacity:0;transition:opacity 0.15s;
   z-index:500;width:220px;text-align:center;
   box-shadow:0 8px 24px rgba(0,0,0,0.3);
+  font-weight:400;
 }
 .tt-box::after{
   content:'';position:absolute;top:100%;left:50%;
@@ -251,57 +245,159 @@ body{
 }
 .tt:hover .tt-box{opacity:1;}
 
-/* Value */
-.card-value{
-  font-family:'Syne',sans-serif;
-  font-size:32px;font-weight:700;
-  color:var(--text);line-height:1;
-  margin-bottom:10px;
+/* Donut mini */
+.kpi-donut{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  flex-shrink:0;
+}
+.kpi-donut-svg{
+  width:54px;height:54px;
+  position:relative;
+}
+.kpi-donut-svg svg{width:100%;height:100%;transform:rotate(-90deg);}
+.kpi-donut-pct{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:11px;font-weight:700;
+  color:var(--text);
   font-variant-numeric:tabular-nums;
   letter-spacing:-0.02em;
 }
-.card-value.sm{font-size:24px;}
-.card-value.loading{
+.kpi-donut-label{
+  font-size:8px;color:var(--faint);
+  letter-spacing:0.1em;text-transform:uppercase;
+  font-weight:600;margin-top:2px;
+}
+
+/* Value */
+.kpi-value{
+  font-family:'Inter',sans-serif;
+  font-size:24px;font-weight:700;
+  color:var(--text);line-height:1.05;
+  margin-bottom:9px;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-0.025em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.kpi-value.sm{font-size:22px;}
+.kpi-value.loading{
   background:var(--surface2);border-radius:6px;
   color:transparent;animation:shimmer 1.6s ease-in-out infinite;
-  display:inline-block;min-width:100px;min-height:38px;
+  display:inline-block;min-width:110px;min-height:30px;
 }
-@keyframes shimmer{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes shimmer{0%,100%{opacity:1}50%{opacity:0.45}}
 
 /* Delta */
-.delta{display:flex;align-items:center;gap:6px;font-size:11px;}
-.badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;}
+.kpi-delta{display:flex;align-items:center;gap:6px;font-size:11px;flex-wrap:wrap;}
+.badge{
+  font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;
+  display:inline-flex;align-items:center;gap:4px;
+  letter-spacing:-0.01em;
+}
+.badge svg{width:11px;height:11px;}
 .badge-up  {background:var(--green-bg);color:var(--green-text);}
 .badge-down{background:var(--red-bg);  color:var(--red-text);}
 .badge-flat{background:var(--surface2);color:var(--muted);}
-.delta-vs{font-size:10px;color:var(--faint);}
+.delta-vs{font-size:10px;color:var(--faint);font-weight:500;}
 
+/* Sub-info dentro do card (Tx Conv / Receita complementar) */
+.kpi-sub{
+  font-size:11px;color:var(--muted);
+  margin-top:6px;
+  font-weight:500;
+  letter-spacing:-0.005em;
+}
+.kpi-sub strong{color:var(--text);font-weight:600;}
 
-/* Divider */
-.divider{height:0.5px;background:var(--border);margin:28px 0;}
-
-/* Canal cards */
-.canal-wrap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:8px;}
-.canal-card{
-  background:var(--surface);
+/* ── Detalhamento: Canais (rosca + lista) ── */
+.detail-card{
+  background:var(--white);
   border:0.5px solid var(--border);
-  border-radius:10px;padding:18px;
+  border-radius:14px;
+  padding:22px;
+  display:flex;flex-direction:column;
+  min-height:280px;
 }
-.canal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.canal-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
-.canal-val{
-  font-family:'Syne',sans-serif;
-  font-size:28px;font-weight:700;color:var(--text);
-  margin-bottom:4px;font-variant-numeric:tabular-nums;
+.detail-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;
 }
-.canal-val.loading{
-  background:var(--surface2);border-radius:5px;color:transparent;
-  animation:shimmer 1.6s ease-in-out infinite;
-  display:inline-block;min-width:60px;min-height:34px;
+.detail-title{
+  font-size:12px;font-weight:600;
+  color:var(--text);letter-spacing:0.02em;
 }
-.canal-pct{font-size:11px;color:var(--muted);margin-bottom:12px;}
-.canal-bar-wrap{background:var(--surface2);border-radius:2px;height:3px;overflow:hidden;}
-.canal-bar{height:100%;border-radius:2px;transition:width 0.8s ease;}
+.detail-sub{font-size:10px;color:var(--faint);letter-spacing:0.04em;}
+
+/* Donut canais */
+.canais-wrap{
+  display:flex;align-items:center;gap:24px;
+  flex:1;
+}
+.donut-canais{
+  position:relative;width:140px;height:140px;flex-shrink:0;
+}
+.donut-canais svg{width:100%;height:100%;transform:rotate(-90deg);}
+.donut-canais-center{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);text-align:center;
+}
+.donut-canais-num{
+  font-size:24px;font-weight:700;color:var(--text);
+  letter-spacing:-0.02em;font-variant-numeric:tabular-nums;
+  line-height:1;
+}
+.donut-canais-lbl{font-size:9px;color:var(--faint);letter-spacing:0.08em;text-transform:uppercase;margin-top:3px;font-weight:600;}
+
+.canais-legend{flex:1;display:flex;flex-direction:column;gap:11px;min-width:0;}
+.canal-item{display:flex;align-items:center;gap:10px;font-size:12px;}
+.canal-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.canal-name{font-size:12px;color:var(--text);font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.canal-num{font-size:13px;color:var(--text);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.01em;}
+.canal-pct{font-size:11px;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums;min-width:42px;text-align:right;}
+
+/* ── Detalhamento: Tabela closer ── */
+.tbl-card{
+  background:var(--white);
+  border:0.5px solid var(--border);
+  border-radius:14px;
+  padding:22px;
+  display:flex;flex-direction:column;
+  min-height:280px;
+}
+.tbl-wrap{
+  flex:1;overflow:auto;
+  margin-top:4px;
+}
+.tbl{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+.tbl thead th{
+  text-align:left;
+  font-size:10px;color:var(--muted);
+  font-weight:600;letter-spacing:0.04em;text-transform:uppercase;
+  padding:10px 12px;
+  border-bottom:0.5px solid var(--border);
+  background:var(--white);
+  position:sticky;top:0;
+  white-space:nowrap;
+}
+.tbl thead th.num{text-align:right;}
+.tbl tbody td{
+  padding:11px 12px;
+  border-bottom:0.5px solid var(--surface2);
+  color:var(--text);
+  font-variant-numeric:tabular-nums;
+  font-weight:500;
+}
+.tbl tbody td.num{text-align:right;letter-spacing:-0.01em;}
+.tbl tbody td.name{font-weight:600;}
+.tbl tbody tr:last-child td{border-bottom:none;}
+.tbl tbody tr:hover{background:var(--surface);}
+.tbl tbody tr.empty td{color:var(--faint);font-weight:400;text-align:center;padding:24px;}
 
 /* Error */
 .error-banner{
@@ -309,90 +405,114 @@ body{
   border-radius:8px;padding:10px 16px;
   font-size:11px;color:var(--red-text);
   margin-bottom:18px;display:none;line-height:1.6;
+  font-weight:500;
 }
 
 /* Footer */
 .footer{
-  margin-top:32px;padding-top:18px;
+  margin-top:28px;padding-top:18px;
   border-top:0.5px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:8px;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+  font-size:10.5px;
+  color:var(--faint);
+  letter-spacing:0.02em;
 }
-.footer-left{font-family:'Syne',sans-serif;font-size:10px;color:var(--faint);letter-spacing:0.08em;}
-.footer-right{font-size:10px;color:var(--faint);font-family:'DM Mono',monospace;}
-.footer-right-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
-.footer-sep{font-size:10px;color:var(--border);font-family:'DM Mono',monospace;}
-.footer-schedule{font-size:10px;color:var(--faint);font-family:'DM Mono',monospace;}
+.footer-left{
+  display:flex;flex-direction:column;gap:4px;
+  font-weight:500;
+}
+.footer-left .footer-brand{
+  font-family:'Inter',sans-serif;
+  font-weight:700;color:var(--muted);
+  letter-spacing:0.08em;text-transform:uppercase;
+  font-size:10.5px;
+}
+.footer-left .footer-author{color:var(--faint);font-weight:500;}
+.footer-right{
+  display:flex;flex-direction:column;gap:4px;
+  text-align:right;font-weight:500;
+}
+.footer-meta{color:var(--muted);font-weight:500;}
+.footer-meta strong{color:var(--text);font-weight:600;}
+.footer-source{color:var(--faint);font-size:10px;}
 
-/* ── TABLET ── */
+/* flatpickr customização — fica claro por padrão, só refinar */
+.flatpickr-calendar{
+  font-family:'Inter',sans-serif;
+  border-radius:10px;
+  box-shadow:0 12px 32px rgba(0,0,0,0.12);
+  border:0.5px solid var(--border);
+}
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange{
+  background:var(--ink);border-color:var(--ink);color:var(--white);
+}
+.flatpickr-day.inRange{
+  background:var(--surface2);border-color:var(--surface2);
+  box-shadow:-5px 0 0 var(--surface2),5px 0 0 var(--surface2);
+}
+.flatpickr-day:hover{background:var(--surface);}
+.flatpickr-months .flatpickr-month{color:var(--text);}
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year{font-weight:600;color:var(--text);}
+
+/* Presets */
+.fp-presets{
+  display:flex;gap:6px;
+  padding:8px 10px 0;
+  flex-wrap:wrap;
+}
+.fp-preset{
+  font-size:11px;font-weight:500;
+  background:var(--surface);
+  border:0.5px solid var(--border);
+  border-radius:5px;
+  padding:5px 10px;
+  cursor:pointer;
+  color:var(--text);
+  transition:background 0.12s,border-color 0.12s;
+  font-family:'Inter',sans-serif;
+}
+.fp-preset:hover{background:var(--surface2);border-color:var(--muted);}
+.fp-preset.active{background:var(--ink);color:var(--white);border-color:var(--ink);}
+
+/* ── RESPONSIVO ── */
 @media(max-width:1100px){
-  .g5{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .g2-detail{grid-template-columns:1fr;}
 }
-/* ── TABLET PEQUENO ── */
 @media(max-width:860px){
-  .g5,.g4{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .canal-wrap{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .content{padding:20px 16px 40px;}
+  .g3{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .content{padding:20px 16px 28px;}
 }
-/* ── MOBILE ── */
 @media(max-width:600px){
-  /* Header */
-  .header{padding:0 16px;height:52px;}
+  .header{padding:8px 16px;gap:8px;}
   .header-title{display:none;}
   .header-sep{display:none;}
   .logo-name{font-size:13px;}
-  .refresh-chip{font-size:9px;padding:2px 7px;}
+  .header-right{width:100%;margin-left:0;justify-content:flex-start;padding:0 0 8px;}
+  .header-input{font-size:11px;min-width:auto;flex:1;}
 
-  /* Filter bar — empilha verticalmente */
-  .filter-bar{
-    flex-wrap:wrap;height:auto;
-    padding:10px 16px;gap:8px;
-    top:52px;
-  }
-  .filter-bar .fl{font-size:10px;}
-  .filter-bar .fi{font-size:11px;flex:1;min-width:120px;}
-  .fsep{display:none;}
-  .apply-btn{width:100%;}
-  .compare-note{width:100%;text-align:left;margin-left:0;font-size:10px;}
+  .g3{grid-template-columns:1fr;}
 
-  /* Grids — 1 coluna no mobile */
-  .g5,.g4,.g3{grid-template-columns:1fr;}
-  .canal-wrap{grid-template-columns:1fr;}
+  .kpi{padding:16px;min-height:auto;}
+  .kpi-value{font-size:21px;}
+  .kpi-value.sm{font-size:19px;}
 
-  /* Cards — padding menor */
-  .card{padding:16px;}
-  .card-value{font-size:26px;}
-  .card-value.sm{font-size:20px;}
+  .canais-wrap{flex-direction:column;align-items:stretch;gap:18px;}
+  .donut-canais{width:120px;height:120px;align-self:center;}
 
-  /* Canal cards */
-  .canal-card{padding:14px;}
-  .canal-val{font-size:24px;}
-
-  /* Section head */
   .sec-head{margin-top:20px;margin-bottom:10px;}
-  .sec-title{font-size:10px;}
 
-  /* Content */
-  .content{padding:16px 12px 36px;}
+  .footer{flex-direction:column;align-items:flex-start;gap:14px;}
+  .footer-right{text-align:left;}
+  .content{padding:16px 12px 24px;}
 
-  /* Footer */
-  .footer{flex-direction:column;gap:6px;align-items:flex-start;}
-  .footer-left,.footer-right,.footer-schedule{font-size:9px;}
-  .footer-right-wrap{justify-content:flex-start;gap:6px;}
-
-  /* Divider */
-  .divider{margin:20px 0;}
-
-  /* Tooltip — abre para cima e centraliza melhor em telas pequenas */
   .tt-box{width:180px;font-size:10px;}
-}
-/* ── MOBILE PEQUENO (iPhone SE etc) ── */
-@media(max-width:375px){
-  .card-value{font-size:22px;}
-  .card-value.sm{font-size:18px;}
-  .canal-val{font-size:20px;}
-  .header{height:48px;}
-  .filter-bar{top:48px;}
+
+  .tbl-card{padding:16px;}
+  .tbl thead th, .tbl tbody td{padding:9px 8px;font-size:11px;}
 }
 </style>
 </head>
@@ -404,11 +524,6 @@ body{
     <div class="login-logo-box"><img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABBAEYDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAgJBgcCBAUD/8QANRAAAQMDAgQDBQYHAAAAAAAAAQIDBAAFBgcRCBIhQSIxURMUYXGBCTJCUmKRFiNEcoKxwf/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCGVKVuy/8ADxkz2n9tz/BHDk1imxUvuMtJ2lxTt4kqQPv8p3G6evTqkUGk6VydbW04ptxCkLSdlJUNiDXGgUpSgUrv2CzXW/3Vm12W3ybhNfVytsMNlalH5Ctn6n6H3PTLTqFkGZ3JmPernIDUO0sbLKEAbrW4vy3HhHKnfz8+1BqGlKUCpvfZzZz73Yr1p/Me3dgq9/gpJ82lkBxI+S+U/wCdQhrN9DM9e011PtGWobdeYjOFEtlsjmdYWOVaRv032O437gUE6uInhyxrUiK/d7O0zZ8mCSpMhtPK3JPo4B3P5vOq98zxm9YhkUqwZBBchz4q+Vbax5+hB7g9jVkuAcRmkmZBtqJk7VrmL/pLon3Ze/oFHwKP9qjXhcXGkcDU/T56+WRppzJLSyp+G61sTKbA3UySPPcblP6tuxNBW9WwtD9Jsl1WyUW2zNewhMkGbPcSfZsJ/wCqPYVi+D43ccuy6241a2yqXPkJZR0+7ueqj8ANzVoun2MYhpBp9Fs7cuDbYcVsKlS5LqWg65t4lrUrbzNB8dG9I8P0usyYdggpXNWkCTcHkgvvHv1/CP0jp86hFxyZz/Fmsj9rjPc8CxN+6NgHoXPNw/v0+lSa1S4rNMMdt0yJYLo/kF1LSkM+4MksoXtsCpxWySN+vh5qrxuUyRcbjJny1lx+S6p1xR7qUdz/ALoOvSlKBSlKDO9GNLcm1SyRNqsMcpjtkGXMWP5UdJ7k+voKsn0a03s2mOGM47aXZEj8ch95ZJdXt1IHkkfAVDHgAzgY/qk/i8p3liX5nkQCegfR1T9SNxU+L7c4Vkss28XJ9EeFCjrkSHVHohCElSj+woIdcM+J26Fxk5y002gN2hcpyKjbogOObAD5BW30rcPFDoNE1XtYuVtmLhZFEbIjlbhLD4/IpPkk+ih9ai/wz6ntM8U0vIrmv3eLk8qQ2vnOwbLqypsE+gOwqw55xtllbzq0ttoSVLWo7BIHUkn0oKfssx284rf5Viv8B2DcIquVxpwbH4EeoPY15VZvrrmi9QNVr9lHMoxpMkoiA/hYR4W+nbwgE/EmsIoFKUoFKUoPRxq7y7BkNvvcFZRJgyEPtkHbqk77fXyqRXFTxHpz/G4mIYoXWLY8027dXiOUvuAA+yH6ArqfUgdh1jJSg5NOLadQ60tSHEKCkqSdiCPIipTzOKJ278Nl0xa4F1GXOMptyX0jwvMLGy3d+yuQFJ+KgaitSgUpSgUpSgUpSgUpSgUpSgUpSgUpSg//2Q==" alt="AJA"></div>
     <div class="login-brand">AJA</div>
     <div class="login-sub">Painel Executivo</div>
-    <div class="login-divider"></div>
-    <div class="login-label">Senha de acesso</div>
-    <input class="login-input" type="password" id="pwd-input" placeholder="••••••••" autocomplete="current-password">
-    <button class="login-btn" onclick="doLogin()">Acessar</button>
-    <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
@@ -423,25 +538,17 @@ body{
       <span class="header-title">Painel Executivo</span>
     </div>
     <div class="header-right">
-      <span class="refresh-chip" id="refresh-chip">—</span>
-      
+      <span class="header-fl">Período</span>
+      <input type="text" class="header-input" id="f-range" placeholder="Selecione o período" readonly>
+      <span class="header-fl">Comparar</span>
+      <select class="header-select" id="f-compare">
+        <option value="prev_month">Período anterior</option>
+        <option value="prev_year">Ano anterior</option>
+        <option value="none">Sem comparação</option>
+      </select>
+      <button class="apply-btn" onclick="applyFilter()">Aplicar</button>
+      <span class="compare-note" id="compare-note"></span>
     </div>
-  </div>
-
-  <div class="filter-bar">
-    <span class="fl">Período</span>
-    <input type="date" class="fi" id="f-start">
-    <span class="fl">até</span>
-    <input type="date" class="fi" id="f-end">
-    <div class="fsep"></div>
-    <span class="fl">Comparar</span>
-    <select class="fi" id="f-compare">
-      <option value="prev_month">Período anterior (mesma duração)</option>
-      <option value="prev_year">Ano anterior</option>
-      <option value="none">Sem comparação</option>
-    </select>
-    <button class="apply-btn" onclick="applyFilter()">Aplicar</button>
-    <span class="compare-note" id="compare-note"></span>
   </div>
 
   <div class="content">
@@ -449,274 +556,275 @@ body{
       ⚠ Erro ao carregar dados. <span id="error-detail"></span>
     </div>
 
-    <!-- METAS -->
-    <div style="background:var(--white);border:0.5px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+    <!-- ═════════ DADOS GERAIS ═════════ -->
+    <div class="sec-head">
+      <span class="sec-title">Dados Gerais</span>
+      <div class="sec-line"></div>
+    </div>
 
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-        <span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:var(--text);letter-spacing:0.1em;text-transform:uppercase;">Acompanhamento de Metas 2026 — Cenário Otimista</span>
-        <span style="font-size:10px;color:var(--faint);font-family:'DM Mono',monospace;" id="metas-period-label">—</span>
-      </div>
+    <!-- Linha 1: Receitas (com donut) -->
+    <div class="grid g3" style="margin-bottom:12px;">
 
       <!-- Receita Total -->
-      <div style="margin-bottom:18px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
-          <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Receita Total</span>
-          <div style="display:flex;align-items:baseline;gap:8px;">
-            <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--text);" id="meta-total-real">—</span>
-            <span style="font-size:11px;color:var(--faint);" id="meta-total-de">de —</span>
-            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;" id="meta-total-pct">—%</span>
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-top-left">
+            <div class="kpi-icon" id="ic-recTotal"></div>
+            <span class="kpi-label">Receita Total</span>
+            <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Soma de todas as receitas do período: Vendas Novas + Renovações + Ascensões.</div></div>
           </div>
+          <div class="kpi-donut" id="donut-recTotal"></div>
         </div>
-        <div style="background:var(--surface2);border-radius:3px;height:8px;overflow:hidden;">
-          <div id="meta-total-bar" style="height:100%;border-radius:3px;width:0%;transition:width 0.9s ease;"></div>
-        </div>
+        <div class="kpi-value loading" id="val-receita-total">R$0</div>
+        <div class="kpi-delta" id="delta-receita-total"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
       </div>
 
       <!-- Receita Vendas Novas -->
-      <div style="margin-bottom:18px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
-          <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Receita Vendas Novas</span>
-          <div style="display:flex;align-items:baseline;gap:8px;">
-            <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--text);" id="meta-vendas-real">—</span>
-            <span style="font-size:11px;color:var(--faint);" id="meta-vendas-de">de —</span>
-            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;" id="meta-vendas-pct">—%</span>
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-top-left">
+            <div class="kpi-icon" id="ic-recVN"></div>
+            <span class="kpi-label">Receita Vendas Novas</span>
+            <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Faturamento gerado por novos negócios fechados no período.</div></div>
+          </div>
+          <div class="kpi-donut" id="donut-recVN"></div>
+        </div>
+        <div class="kpi-value loading" id="val-receita-vendas">R$0</div>
+        <div class="kpi-delta" id="delta-receita-vendas"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+      </div>
+
+      <!-- Receita Ascensões e Renovações -->
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-top-left">
+            <div class="kpi-icon" id="ic-recRet"></div>
+            <span class="kpi-label">Receita Ascensões e Renovações</span>
+            <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Faturamento total da retenção: ascensões (upgrades) + renovações de contrato.</div></div>
+          </div>
+          <div class="kpi-donut" id="donut-recRet"></div>
+        </div>
+        <div class="kpi-value loading" id="val-receita-ret">R$0</div>
+        <div class="kpi-delta" id="delta-receita-ret"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+      </div>
+
+    </div>
+
+    <!-- Linha 2: Quantidades -->
+    <div class="grid g3" style="margin-bottom:12px;">
+
+      <!-- Vendas Novas -->
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-top-left">
+            <div class="kpi-icon" id="ic-vendas"></div>
+            <span class="kpi-label">Vendas Novas</span>
+            <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Total de negócios fechados com sucesso no período.</div></div>
           </div>
         </div>
-        <div style="background:var(--surface2);border-radius:3px;height:8px;overflow:hidden;">
-          <div id="meta-vendas-bar" style="height:100%;border-radius:3px;width:0%;transition:width 0.9s ease;"></div>
-        </div>
+        <div class="kpi-value loading" id="val-vendas">0</div>
+        <div class="kpi-delta" id="delta-vendas"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+        <div class="kpi-sub" id="sub-vendas">Taxa de Conversão de Vendas vs Leads: <strong id="sub-vendas-val">—</strong></div>
       </div>
 
-      <!-- Receita Retenção -->
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
-          <span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Receita Retenção</span>
-          <div style="display:flex;align-items:baseline;gap:8px;">
-            <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--text);" id="meta-retencao-real">—</span>
-            <span style="font-size:11px;color:var(--faint);" id="meta-retencao-de">de —</span>
-            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;" id="meta-retencao-pct">—%</span>
+      <!-- Ascensões -->
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-top-left">
+            <div class="kpi-icon" id="ic-asc"></div>
+            <span class="kpi-label">Ascensões</span>
+            <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Mentoradas que fizeram upgrade para um produto de maior valor no período.</div></div>
           </div>
         </div>
-        <div style="background:var(--surface2);border-radius:3px;height:8px;overflow:hidden;">
-          <div id="meta-retencao-bar" style="height:100%;border-radius:3px;width:0%;transition:width 0.9s ease;"></div>
+        <div class="kpi-value loading" id="val-asc">0</div>
+        <div class="kpi-delta" id="delta-asc"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+        <div class="kpi-sub">Receita: <strong id="sub-asc-val">—</strong></div>
+      </div>
+
+      <!-- Renovações -->
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-top-left">
+            <div class="kpi-icon" id="ic-renov"></div>
+            <span class="kpi-label">Renovações</span>
+            <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Mentoradas que renovaram contrato no período.</div></div>
+          </div>
         </div>
+        <div class="kpi-value loading" id="val-renov">0</div>
+        <div class="kpi-delta" id="delta-renov"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+        <div class="kpi-sub">Receita: <strong id="sub-renov-val">—</strong></div>
       </div>
 
     </div>
 
-    <!-- SEÇÃO 1 -->
-    <div class="sec-head">
-      <span class="sec-title">Aquisição</span>
-      <div class="sec-line"></div>
-      <span class="sec-sub">Comercial · Zoho CRM + Meta Ads</span>
-    </div>
-
-    <!-- Fileira 1: Receita Total | Receita Vendas Novas | ROAS | CAC -->
-    <div class="grid g4" style="margin-bottom:10px;">
-
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">Receita Total</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Soma de todas as receitas do período: Vendas Novas + Renovações + Ascensões.</div></div>
-        </div>
-        <div class="card-value sm loading" id="val-receita-total">R$0</div>
-        <div class="delta" id="delta-receita-total"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
-      </div>
-
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">Receita Vendas Novas</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Faturamento gerado por novos negócios fechados no período.</div></div>
-        </div>
-        <div class="card-value sm loading" id="val-receita-vendas">R$0</div>
-        <div class="delta" id="delta-receita-vendas"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
-      </div>
-
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">ROAS</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Retorno sobre investimento em mídia. Receita Vendas Novas ÷ Investimento Meta Ads.</div></div>
-        </div>
-        <div class="card-value loading" id="val-roas">0</div>
-        <div class="delta" id="delta-roas"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
-      </div>
-
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">CAC</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Custo de aquisição por cliente. Investimento Meta Ads ÷ total de Vendas Novas.</div></div>
-        </div>
-        <div class="card-value sm loading" id="val-cac">R$0</div>
-        <div class="delta" id="delta-cac"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
-      </div>
-
-    </div>
-
-    <!-- Fileira 2: Vendas Novas | Leads Novos | Taxa de Conversão -->
+    <!-- Linha 3: Investimento + ROAS + CAC -->
     <div class="grid g3">
 
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">Vendas Novas</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Total de negócios fechados com sucesso no período.</div></div>
+      <!-- Investimento Ads -->
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-top-left">
+            <div class="kpi-icon" id="ic-invest"></div>
+            <span class="kpi-label">Investimento Ads</span>
+            <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Total investido em Meta Ads no período.</div></div>
+          </div>
         </div>
-        <div class="card-value loading" id="val-vendas">0</div>
-        <div class="delta" id="delta-vendas"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+        <div class="kpi-value sm loading" id="val-invest">R$0</div>
+        <div class="kpi-delta" id="delta-invest"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
       </div>
 
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">Leads Novos</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Potenciais clientes que entraram no pipeline comercial no período.</div></div>
+      <!-- ROAS -->
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-top-left">
+            <div class="kpi-icon" id="ic-roas"></div>
+            <span class="kpi-label">ROAS</span>
+            <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Retorno sobre investimento em mídia. Receita Vendas Novas ÷ Investimento Ads.</div></div>
+          </div>
         </div>
-        <div class="card-value loading" id="val-leads">0</div>
-        <div class="delta" id="delta-leads"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+        <div class="kpi-value loading" id="val-roas">0</div>
+        <div class="kpi-delta" id="delta-roas"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
       </div>
 
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">Taxa de Conversão</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Percentual de leads que se tornaram clientes. Vendas Novas ÷ Leads Novos.</div></div>
+      <!-- CAC -->
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-top-left">
+            <div class="kpi-icon" id="ic-cac"></div>
+            <span class="kpi-label">CAC</span>
+            <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Custo de aquisição por cliente. Investimento Ads ÷ Vendas Novas.</div></div>
+          </div>
         </div>
-        <div class="card-value loading" id="val-conv">0%</div>
-        <div class="delta" id="delta-conv"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
+        <div class="kpi-value sm loading" id="val-cac">R$0</div>
+        <div class="kpi-delta" id="delta-cac"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
       </div>
 
     </div>
 
-    <!-- SEÇÃO 2 -->
+    <!-- ═════════ DETALHAMENTO ═════════ -->
     <div class="sec-head">
-      <span class="sec-title">Retenção</span>
+      <span class="sec-title">Detalhamento</span>
       <div class="sec-line"></div>
-      <span class="sec-sub">CS · Renovações e Ascensões</span>
-    </div>
-    <div class="grid g4">
-
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">Receita Renovações</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Faturamento gerado pela renovação de contratos de mentoradas existentes.</div></div>
-        </div>
-        <div class="card-value sm loading" id="val-receita-renov">R$0</div>
-        <div class="delta" id="delta-receita-renov"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
-      </div>
-
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">Renovações</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Mentoradas que renovaram seu contrato no período.</div></div>
-        </div>
-        <div class="card-value loading" id="val-renov">0</div>
-        <div class="delta" id="delta-renov"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
-      </div>
-
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">Receita Ascensões</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Faturamento gerado por mentoradas que fizeram upgrade de produto.</div></div>
-        </div>
-        <div class="card-value sm loading" id="val-receita-asc">R$0</div>
-        <div class="delta" id="delta-receita-asc"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
-      </div>
-
-      <div class="card">
-        <div class="card-top">
-          <span class="card-label">Ascensões</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Mentoradas que fizeram upgrade para um produto de maior valor.</div></div>
-        </div>
-        <div class="card-value loading" id="val-asc">0</div>
-        <div class="delta" id="delta-asc"><span class="badge badge-flat">—</span><span class="delta-vs">vs período ant.</span></div>
-      </div>
-
     </div>
 
-    <div class="divider"></div>
+    <div class="grid g2-detail">
 
-    <!-- SEÇÃO 3 -->
-    <div class="sec-head">
-      <span class="sec-title">Canais de Aquisição</span>
-      <div class="sec-line"></div>
-      <span class="sec-sub">Vendas novas por origem de mídia</span>
-    </div>
-    <div class="canal-wrap">
-
-      <div class="canal-card">
-        <div class="canal-top">
-          <span class="canal-label">Pago</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Vendas de leads originados por mídia paga — Meta Ads, Google Ads e afins.</div></div>
+      <!-- Canais de Aquisição -->
+      <div class="detail-card">
+        <div class="detail-head">
+          <span class="detail-title">Canais de Aquisição</span>
+          <span class="detail-sub">Vendas novas por origem</span>
         </div>
-        <div class="canal-val loading" id="canal-pago-val">0</div>
-        <div class="canal-pct" id="canal-pago-pct">—</div>
-        <div class="canal-bar-wrap"><div class="canal-bar" id="canal-pago-bar" style="width:0%;background:#1A9E55;"></div></div>
+        <div class="canais-wrap">
+          <div class="donut-canais" id="donut-canais"></div>
+          <div class="canais-legend" id="canais-legend"></div>
+        </div>
       </div>
 
-      <div class="canal-card">
-        <div class="canal-top">
-          <span class="canal-label">Orgânico</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Vendas de leads que chegaram sem investimento direto em mídia paga.</div></div>
+      <!-- Performance por Closer -->
+      <div class="tbl-card">
+        <div class="detail-head">
+          <span class="detail-title">Performance por Closer</span>
+          <span class="detail-sub">% relativos ao total de closers</span>
         </div>
-        <div class="canal-val loading" id="canal-org-val">0</div>
-        <div class="canal-pct" id="canal-org-pct">—</div>
-        <div class="canal-bar-wrap"><div class="canal-bar" id="canal-org-bar" style="width:0%;background:#5B4FCF;"></div></div>
-      </div>
-
-      <div class="canal-card">
-        <div class="canal-top">
-          <span class="canal-label">Sem Rastreamento</span>
-          <div class="tt"><div class="tt-icon">i</div><div class="tt-box">Vendas cujo canal de origem não foi identificado — lead entrou sem parâmetros UTM.</div></div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Closer</th>
+                <th class="num">Vendas Novas</th>
+                <th class="num">% Vendas</th>
+                <th class="num">Receita VN</th>
+                <th class="num">% Receita</th>
+                <th class="num">Ticket Médio</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-closer-body">
+              <tr class="empty"><td colspan="6">Carregando...</td></tr>
+            </tbody>
+          </table>
         </div>
-        <div class="canal-val loading" id="canal-sem-val">0</div>
-        <div class="canal-pct" id="canal-sem-pct">—</div>
-        <div class="canal-bar-wrap"><div class="canal-bar" id="canal-sem-bar" style="width:0%;background:#B4B4C4;"></div></div>
       </div>
 
     </div>
 
+    <!-- ═════════ FOOTER ═════════ -->
     <div class="footer">
-      <span class="footer-left">AJA EDUCAÇÃO · PAINEL EXECUTIVO</span>
-      <div class="footer-right-wrap">
-        <span class="footer-right" id="last-update">—</span>
-        <span class="footer-sep">·</span>
-        <span class="footer-right" id="next-update">—</span>
-        <span class="footer-sep">·</span>
-        <span class="footer-right footer-schedule">Atualiza diariamente às 7h, 11h, 16h e 23h</span>
+      <div class="footer-left">
+        <span class="footer-brand">AJA EDUCAÇÃO · PAINEL EXECUTIVO</span>
+        <span class="footer-author">Elaborado por: Henrique Cardoso · BI Analyst</span>
+      </div>
+      <div class="footer-right">
+        <span class="footer-meta" id="last-update">—</span>
+        <span class="footer-meta" id="next-update">—</span>
+        <span class="footer-source">Origem dos dados: Zoho CRM, Meta Ads e Planilha de Metas · Fonte de dados: Supabase e Stract</span>
       </div>
     </div>
+
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
 <script>
-// ── METAS — carregadas do CSV no GitHub ──
-const METAS_CSV_URL = 'https://raw.githubusercontent.com/ferramentasaja/dashboard-aja-aquisicao/main/metas%20-%20metas.csv';
-let _metasData = null; // cache das linhas do CSV
+// ═══════════════════════════════════════════════════════════
+// ÍCONES (Lucide SVG inline)
+// ═══════════════════════════════════════════════════════════
+const ICONS = {
+  wallet:    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>',
+  trendUp:   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>',
+  refresh:   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>',
+  shopping:  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>',
+  arrowUp:   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>',
+  users:     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  megaphone: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>',
+  gauge:     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>',
+  target:    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  arrowDown: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>',
+  arrowUpSm: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>',
+  minus:     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>',
+};
 
-// ── CONFIG ──
-// Chaves do Supabase removidas do frontend.
-// Todas as requisições passam pelo Cloudflare Worker.
+// Atribui ícones a cada card
+const CARD_ICONS = {
+  'ic-recTotal':'wallet',
+  'ic-recVN':   'trendUp',
+  'ic-recRet':  'refresh',
+  'ic-vendas':  'shopping',
+  'ic-asc':     'arrowUp',
+  'ic-renov':   'users',
+  'ic-invest':  'megaphone',
+  'ic-roas':    'gauge',
+  'ic-cac':     'target',
+};
+function injectIcons(){
+  Object.entries(CARD_ICONS).forEach(([id,name])=>{
+    const el = document.getElementById(id);
+    if(el) el.innerHTML = ICONS[name];
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+const METAS_CSV_URL = 'https://raw.githubusercontent.com/ferramentasaja/dashboard-aja-aquisicao/main/metas%20-%20metas.csv';
+let _metasData = null;
+
 const WORKER_URL    = 'https://aja-metrics-api.ferramentas-931.workers.dev';
 const TABELA_DEAL   = 'deal_webhook_comercial';
 const TABELA_UTM    = 'deal_utm_dim';
 const TABELA_CS     = 'receita CS - Renovações e Ascensões [BASE TOTAL]';
 
-// ── LOGIN ──
-function doLogin() {
-  if (document.getElementById('pwd-input').value === SENHA) {
-    sessionStorage.setItem('aja_auth','1');
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    initDashboard();
-  } else {
-    document.getElementById('login-error').textContent = 'Senha incorreta.';
-    document.getElementById('pwd-input').value = '';
-  }
-}
-document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+// ═══════════════════════════════════════════════════════════
+// LOGIN (bypassed)
+// ═══════════════════════════════════════════════════════════
 function doLogout() {
   sessionStorage.removeItem('aja_auth');
   location.reload();
 }
 
-// ── DATAS ──
+// ═══════════════════════════════════════════════════════════
+// DATAS
+// ═══════════════════════════════════════════════════════════
 function parseDate(str) {
   if (!str) return null;
   str = String(str).trim();
@@ -733,25 +841,29 @@ function inRange(str, s, e) {
   const d = parseDate(str);
   return d ? d >= s && d <= e : false;
 }
+
+// Estado dos filtros
+let _rangeStart = null, _rangeEnd = null, _fp = null;
+
 function setDefaultDates() {
   const now = new Date();
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
-  document.getElementById('f-start').value = toYMD(new Date(now.getFullYear(), now.getMonth(), 1));
-  document.getElementById('f-end').value   = toYMD(yesterday);
+  _rangeStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  _rangeEnd   = yesterday;
 }
+
 function getPeriodos() {
-  const s = new Date(document.getElementById('f-start').value+'T00:00:00');
-  const e = new Date(document.getElementById('f-end').value+'T23:59:59');
+  const s = new Date(_rangeStart.getFullYear(), _rangeStart.getMonth(), _rangeStart.getDate(), 0, 0, 0);
+  const e = new Date(_rangeEnd.getFullYear(),   _rangeEnd.getMonth(),   _rangeEnd.getDate(),   23,59,59);
   const mode = document.getElementById('f-compare').value;
   let ps=null, pe=null;
 
   if (mode==='prev_month') {
-    // Recua exatamente a mesma duração do filtro (em dias)
     const sDay = new Date(s.getFullYear(), s.getMonth(), s.getDate());
     const eDay = new Date(e.getFullYear(), e.getMonth(), e.getDate());
     const durDias = Math.round((eDay - sDay) / (1000*60*60*24)) + 1;
-    pe = new Date(sDay.getTime() - 24*60*60*1000); // dia antes do início do filtro
+    pe = new Date(sDay.getTime() - 24*60*60*1000);
     pe.setHours(23,59,59);
     ps = new Date(pe.getFullYear(), pe.getMonth(), pe.getDate() - durDias + 1);
   } else if (mode==='prev_year') {
@@ -765,34 +877,47 @@ function getPeriodos() {
   return {s,e,ps,pe,hasCmp:!!ps};
 }
 
-// ── HELPERS ──
+// ═══════════════════════════════════════════════════════════
+// HELPERS DE FORMATAÇÃO
+// ═══════════════════════════════════════════════════════════
 function fmtBRL(v) {
-  if (!v && v!==0) return '—';
-  if (v>=1e6) return 'R$ '+(v/1e6).toFixed(2).replace('.',',')+'M';
-  if (v>=1e3) return 'R$ '+(v/1e3).toFixed(1).replace('.',',')+'k';
-  return 'R$ '+Math.round(v).toLocaleString('pt-BR');
+  if (v==null || isNaN(v)) return '—';
+  return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
+function fmtBRLfull(v) { return fmtBRL(v); }
 function fmtN(v)   { return (v==null||isNaN(v))?'—':Number(v).toLocaleString('pt-BR'); }
-function fmtP(v)   { return (v==null||isNaN(v))?'—':v.toFixed(1).replace('.',',')+' %'; }
+function fmtP(v)   { return (v==null||isNaN(v))?'—':v.toFixed(1).replace('.',',')+'%'; }
 function dlta(c,p) {
-  if (p==null||p===0) return {b:'flat',l:'—'};
+  if (p==null||p===0) return {b:'flat',l:'—',raw:0};
   const x=((c-p)/p)*100;
-  return {b:x>0?'up':x<0?'down':'flat', l:(x>=0?'▲ ':'▼ ')+Math.abs(x).toFixed(1).replace('.',',')+' %'};
+  return {b:x>0?'up':x<0?'down':'flat', l:Math.abs(x).toFixed(1).replace('.',',')+'%', raw:x};
+}
+// Variação invertida (CAC e Investimento — subir é ruim)
+function dltaInverso(c,p) {
+  if (p==null||p===0) return {b:'flat',l:'—',raw:0};
+  const x=((c-p)/p)*100;
+  return {b:x>0?'down':x<0?'up':'flat', l:Math.abs(x).toFixed(1).replace('.',',')+'%', raw:x};
+}
+function arrowFor(b){
+  if(b==='up')   return ICONS.arrowUpSm;
+  if(b==='down') return ICONS.arrowDown;
+  return ICONS.minus;
 }
 function sv(id,t)  { const el=document.getElementById(id); if(el){el.textContent=t;el.classList.remove('loading');} }
 function sd(id,d,vs) {
   const el=document.getElementById(id);
-  if(el) el.innerHTML=`<span class="badge badge-${d.b}">${d.l}</span><span class="delta-vs">${vs||'vs período ant.'}</span>`;
+  if(el) el.innerHTML=`<span class="badge badge-${d.b}">${arrowFor(d.b)} ${d.l}</span><span class="delta-vs">${vs||'vs período ant.'}</span>`;
 }
 
-// ── FETCH VIA WORKER (sem chaves no frontend) ──
+// ═══════════════════════════════════════════════════════════
+// FETCH (idêntico ao anterior)
+// ═══════════════════════════════════════════════════════════
 async function fetchAll(projeto, table, cols) {
   const endpoint = projeto === 'comercial' ? '/api/comercial' : '/api/hub';
   const PAGE = 1000;
   let all = [], from = 0, done = false;
   while (!done) {
     const to = from + PAGE - 1;
-    // Range passado como query param (Worker lê de url.searchParams)
     const url = `${WORKER_URL}${endpoint}?table=${encodeURIComponent(table)}&select=${encodeURIComponent(cols)}&range=${from}-${to}`;
     const res = await fetch(url);
     if (!res.ok) {
@@ -811,7 +936,16 @@ let _deals=null, _utms=null, _cs=null, _metaads=null;
 
 async function fetchAllDeals() {
   if(_deals) return _deals;
-  _deals=await fetchAll('comercial',TABELA_DEAL,'id,id_negocio,estagio,montante,dtcadastro,dtfechamento');
+  // Buscamos tudo (*) para descobrir o campo Closer dinamicamente
+  _deals=await fetchAll('comercial',TABELA_DEAL,'*');
+  // Log do primeiro registro para identificar campo Closer
+  if(_deals.length > 0){
+    console.group('DEBUG Deals — Chaves disponíveis');
+    console.log('Total deals:', _deals.length);
+    console.log('Chaves do primeiro deal:', Object.keys(_deals[0]));
+    console.log('Primeiro deal:', _deals[0]);
+    console.groupEnd();
+  }
   return _deals;
 }
 async function fetchAllUtms() {
@@ -826,7 +960,6 @@ async function fetchAllCS() {
   _cs=raw.filter(r=>r.ano!==1899 && r.assinatura==='Assinado');
   return _cs;
 }
-
 async function fetchMetaAds() {
   if(_metaads) return _metaads;
   try {
@@ -845,7 +978,6 @@ async function fetchMetas() {
     const text = await res.text();
     const lines = text.trim().split(/\r?\n/);
 
-    // Parser CSV que respeita campos entre aspas (ex: "51.873,45")
     function parseCSVLine(line) {
       const cols = [];
       let cur = '', inQ = false;
@@ -857,8 +989,6 @@ async function fetchMetas() {
       cols.push(cur);
       return cols;
     }
-
-    // Parse número BR: "51.873,45" → 51873.45
     const parseBR = v => {
       const s = (v||'').trim().replace(/"/g,'').replace(/\./g,'').replace(',','.');
       const n = parseFloat(s);
@@ -881,8 +1011,7 @@ async function fetchMetas() {
         meta_retencao:    parseBR(cols[retIdx]),
       };
     }).filter(r => r.date && !isNaN(r.date));
-
-    console.log('Metas carregadas:', _metasData.length, 'dias. Exemplo abril:', _metasData.filter(r=>r.date.getMonth()===3).slice(0,2));
+    console.log('Metas carregadas:', _metasData.length, 'dias');
   } catch(e) {
     console.warn('Metas CSV não carregou:', e.message);
     _metasData = [];
@@ -890,7 +1019,9 @@ async function fetchMetas() {
   return _metasData;
 }
 
-// ── CLASSIFICAÇÃO UTM (corrigida com diagnóstico) ──
+// ═══════════════════════════════════════════════════════════
+// CLASSIFICAÇÃO UTM
+// ═══════════════════════════════════════════════════════════
 function classifyMedium(med) {
   const m=(med||'').toLowerCase().trim();
   if(['paid','cpc'].includes(m))    return 'pago';
@@ -898,7 +1029,9 @@ function classifyMedium(med) {
   return 'sem';
 }
 
-// ── PARSE MONTANTE ──
+// ═══════════════════════════════════════════════════════════
+// PARSE MONTANTE
+// ═══════════════════════════════════════════════════════════
 function parseMontante(v) {
   if (v==null) return 0;
   if (typeof v === 'number') return v;
@@ -906,28 +1039,53 @@ function parseMontante(v) {
     v = v.value || v.montante || Object.values(v)[0] || 0;
   }
   const str = String(v).trim();
-  // Formato americano: "36000.00" — tem ponto como decimal, sem vírgula
   if (/^\d+\.\d+$/.test(str)) return parseFloat(str);
-  // Formato BR: "R$ 36.000,00" — remove R$, espaços e pontos, troca vírgula por ponto
   const clean = str.replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.');
   const n = parseFloat(clean);
   return isNaN(n) ? 0 : n;
 }
 
-// ── CALCULAR ──
+// ═══════════════════════════════════════════════════════════
+// IDENTIFICA CAMPO "CLOSER" (heurística — tenta vários nomes)
+// ═══════════════════════════════════════════════════════════
+const CLOSER_CANDIDATES = [
+  'closer', 'Closer', 'CLOSER',
+  'closer_nome', 'closer_name',
+  'nome_closer', 'closer_responsavel',
+  'owner', 'Owner', 'owner_name', 'Owner.name',
+  'responsavel', 'Responsavel', 'responsável',
+  'vendedor', 'Vendedor',
+  'sales_rep', 'salesperson'
+];
+function detectCloserField(deals){
+  if(!deals || deals.length === 0) return null;
+  const sample = deals.find(d => Object.keys(d).length > 0) || deals[0];
+  const keys = Object.keys(sample);
+  for(const c of CLOSER_CANDIDATES){
+    if(keys.includes(c)) return c;
+  }
+  // Se nenhum dos candidatos exatos bater, procura por chaves que contenham 'closer' ou 'owner'
+  const fuzzy = keys.find(k => /closer|owner|vendedor|respons/i.test(k));
+  return fuzzy || null;
+}
+function getCloserName(deal, field){
+  if(!field) return null;
+  const v = deal[field];
+  if(v == null || v === '') return null;
+  if(typeof v === 'object') return v.name || v.nome || v.value || JSON.stringify(v);
+  return String(v).trim();
+}
+
+// ═══════════════════════════════════════════════════════════
+// CALCULAR MÉTRICAS
+// ═══════════════════════════════════════════════════════════
 function calcMetrics(deals, utms, cs, s, e) {
-  // UTM map
   const utmMap={};
   utms.forEach(u=>{utmMap[u.id_negocio]=(u.utm_medium||'').toLowerCase().trim();});
 
-  // Leads: cadastrados no período
   const leadsP=deals.filter(r=>inRange(r.dtcadastro,s,e));
   const leadsUniq=new Set(leadsP.map(r=>r.id_negocio)).size;
 
-  // Vendas: fechadas no período
-  // Estágios: 'Ganho', 'Fechado Ganho', 'Fechado Ganho' (variações)
-  // Lógica igual ao Looker Studio:
-  // COUNT DISTINCT id_negocio + SUM(montante) — sem dedup por id
   const FECHADOS=['ganho','fechado ganho'];
   const vendasP=deals.filter(r=>{
     const est=(r.estagio||'').toLowerCase().trim();
@@ -936,18 +1094,8 @@ function calcMetrics(deals, utms, cs, s, e) {
   const vendasUniq = new Set(vendasP.map(r=>r.id_negocio)).size;
   const conv = leadsUniq>0?(vendasUniq/leadsUniq)*100:0;
   const receitaVendas = vendasP.reduce((a,r)=>a+parseMontante(r.montante),0);
-  // vendasUnicas usado nos canais — dedup por id_negocio (só para distribuição de canal)
   const vendasUnicas=[...new Map(vendasP.map(r=>[r.id_negocio,r])).values()];
 
-  // DEBUG — remover após validar
-  console.group('DEBUG Vendas Novas');
-  console.log('vendasP (todas linhas fechadas no período):', vendasP.length);
-  console.log('vendasUnicas (por id_negocio):', vendasUnicas.length);
-  console.log('Amostra montantes (primeiros 10):', vendasUnicas.slice(0,10).map(r=>({id:r.id_negocio, estagio:r.estagio, montante:r.montante, parsed:parseMontante(r.montante)})));
-  console.log('Receita total calculada:', receitaVendas);
-  console.groupEnd();
-
-  // Canais das vendas — usa vendasUnicas já declarada acima
   let pago=0,organico=0,sem=0;
   vendasUnicas.forEach(r=>{
     const cat=classifyMedium(utmMap[r.id_negocio]);
@@ -956,34 +1104,28 @@ function calcMetrics(deals, utms, cs, s, e) {
     else sem++;
   });
 
-  // CS no período
   const csP=cs.filter(r=>inRange(r.data_referencia_fechamento_date,s,e));
   const renovs=csP.filter(r=>r.tipo_venda==='Renovação');
   const ascs  =csP.filter(r=>r.tipo_venda==='Ascensão');
   const recRenov=renovs.reduce((a,r)=>a+(parseFloat(r.montante_numerico)||0),0);
   const recAsc  =ascs.reduce((a,r)  =>a+(parseFloat(r.montante_numerico)||0),0);
+  const recRetencao = recRenov + recAsc;
   const recTotal=receitaVendas+recRenov+recAsc;
 
-  return {leadsUniq,vendasUniq,conv,receitaVendas,pago,organico,sem,
-          renovs:renovs.length,ascs:ascs.length,recRenov,recAsc,recTotal};
+  return {
+    leadsUniq,vendasUniq,conv,receitaVendas,
+    pago,organico,sem,
+    renovs:renovs.length, ascs:ascs.length,
+    recRenov,recAsc,recRetencao,recTotal,
+    vendasUnicas
+  };
 }
 
 function calcMetaMetrics(metaads, s, e) {
-  // Debug: ver o que está chegando
-  if (metaads.length > 0) {
-    console.group('DEBUG MetaAds');
-    console.log('Total registros:', metaads.length);
-    console.log('Primeiro registro:', metaads[0]);
-    console.log('Chaves:', Object.keys(metaads[0]));
-  }
-
   const SPEND_KEY = 'Spend (Cost, Amount Spent)';
-
-  // Filtra registros pelo período
   const filtered = metaads.filter(r => {
     const dateStr = r['Date'];
     if(!dateStr) return false;
-    // Suporta YYYY-MM-DD e DD/MM/YYYY
     let d;
     if(/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
       d = new Date(dateStr + 'T00:00:00');
@@ -995,146 +1137,277 @@ function calcMetaMetrics(metaads, s, e) {
     }
     return d >= s && d <= e;
   });
-
-  if (metaads.length > 0) {
-    console.log('Registros no período:', filtered.length);
-    if (filtered.length > 0) console.log('Amostra spend:', filtered[0][SPEND_KEY]);
-    console.groupEnd();
-  }
-
   const spend = filtered.reduce((a,r) => {
     const raw = r[SPEND_KEY] || '0';
     const v = parseFloat(String(raw).replace(/[^0-9.,]/g,'').replace(',','.'));
     return a + (isNaN(v)?0:v);
   }, 0);
-
   return { spend };
 }
 
-// ── RENDER METAS (via CSV) ──
-function renderMetas(cur, s, e, metasData) {
-  if (!metasData || metasData.length === 0) return;
+// ═══════════════════════════════════════════════════════════
+// METAS — lógica nova:
+//   - 1 mês selecionado → meta cheia daquele mês
+//   - Multi-mês        → meta cheia do ano (do start)
+// ═══════════════════════════════════════════════════════════
+function getMetaPorPeriodo(metasData, s, e) {
+  if (!metasData || metasData.length === 0) return { metaVN:0, metaRet:0, metaTotal:0, escopo:'—' };
 
-  // Soma as metas dos dias no intervalo selecionado
-  const sDay = new Date(s.getFullYear(), s.getMonth(), s.getDate());
-  const eDay = new Date(e.getFullYear(), e.getMonth(), e.getDate());
+  const sameMonth = s.getFullYear() === e.getFullYear() && s.getMonth() === e.getMonth();
 
-  let metaVendas = 0, metaRetencao = 0;
-  metasData.forEach(r => {
-    const d = new Date(r.date.getFullYear(), r.date.getMonth(), r.date.getDate());
-    if (d >= sDay && d <= eDay) {
-      metaVendas   += r.meta_vendasnovas;
-      metaRetencao += r.meta_retencao;
-    }
-  });
-  const metaTotal = metaVendas + metaRetencao;
-  const recRetencao = cur.recRenov + cur.recAsc;
-  const dias = Math.round((eDay - sDay) / (1000*60*60*24)) + 1;
-
-  const items = [
-    { real: cur.recTotal,      meta: metaTotal,      realId:'meta-total-real',    deId:'meta-total-de',    pctId:'meta-total-pct',    barId:'meta-total-bar' },
-    { real: cur.receitaVendas, meta: metaVendas,     realId:'meta-vendas-real',   deId:'meta-vendas-de',   pctId:'meta-vendas-pct',   barId:'meta-vendas-bar' },
-    { real: recRetencao,       meta: metaRetencao,   realId:'meta-retencao-real', deId:'meta-retencao-de', pctId:'meta-retencao-pct', barId:'meta-retencao-bar' },
-  ];
-
-  const fl = d => d.toLocaleDateString('pt-BR',{day:'numeric',month:'short'});
-  const label = document.getElementById('metas-period-label');
-  if(label) label.textContent = `Meta proporcional: ${fl(sDay)} – ${fl(eDay)} (${dias} dias)`;
-
-  items.forEach(item => {
-    const pctReal = item.meta > 0 ? (item.real / item.meta) * 100 : 0;
-    const cls = pctReal >= 100 ? 'meta-pct-green' : pctReal >= 70 ? 'meta-pct-amber' : 'meta-pct-red';
-    const cor = pctReal >= 100 ? '#1A9E55' : pctReal >= 70 ? '#C07A00' : '#C83232';
-    const bgCls = pctReal >= 100 ? '#EAF7EF' : pctReal >= 70 ? '#FEF3DC' : '#FDEAEA';
-    const txtCls = pctReal >= 100 ? '#0E7A40' : pctReal >= 70 ? '#C07A00' : '#9E2020';
-
-    const elReal = document.getElementById(item.realId);
-    const elDe   = document.getElementById(item.deId);
-    const elPct  = document.getElementById(item.pctId);
-    const elBar  = document.getElementById(item.barId);
-
-    if(elReal) elReal.textContent = fmtBRL(item.real);
-    if(elDe)   elDe.textContent   = 'de ' + fmtBRL(item.meta);
-    if(elPct)  {
-      elPct.textContent = pctReal.toFixed(1).replace('.',',')+'%';
-      elPct.style.background = bgCls;
-      elPct.style.color = txtCls;
-    }
-    if(elBar) {
-      elBar.style.background = cor;
-      setTimeout(()=>{ elBar.style.width = Math.min(pctReal,100)+'%'; }, 200);
-    }
-  });
+  let metaVN = 0, metaRet = 0, escopo = '';
+  if (sameMonth) {
+    const ano = s.getFullYear(), mes = s.getMonth();
+    metasData.forEach(r => {
+      if (r.date.getFullYear() === ano && r.date.getMonth() === mes) {
+        metaVN  += r.meta_vendasnovas;
+        metaRet += r.meta_retencao;
+      }
+    });
+    escopo = 'mês';
+  } else {
+    const ano = s.getFullYear();
+    metasData.forEach(r => {
+      if (r.date.getFullYear() === ano) {
+        metaVN  += r.meta_vendasnovas;
+        metaRet += r.meta_retencao;
+      }
+    });
+    escopo = 'ano';
+  }
+  return { metaVN, metaRet, metaTotal: metaVN + metaRet, escopo };
 }
 
-// ── RENDER ──
-function render(cur,prev,hasCmp,curMeta,prevMeta) {
-  const D=(c,p)=>hasCmp?dlta(c,p):{b:'flat',l:'—'};
-  const vs=hasCmp?'vs período ant.':'';
+// ═══════════════════════════════════════════════════════════
+// DESENHO DE DONUT (mini-rosca dos cards)
+// ═══════════════════════════════════════════════════════════
+function colorDonut(pct){
+  if (pct >= 100) return '#15A357';
+  if (pct >= 70)  return '#C28A1E';
+  return '#D43A3A';
+}
+function renderMiniDonut(containerId, real, meta){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  if (!meta || meta <= 0){
+    el.innerHTML = `
+      <div class="kpi-donut-svg">
+        <svg viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15.5" fill="none" stroke="#EFEDE9" stroke-width="3.5"></circle>
+        </svg>
+        <div class="kpi-donut-pct" style="color:#A8A8B8;">—</div>
+      </div>
+      <div class="kpi-donut-label">Da meta</div>
+    `;
+    return;
+  }
+  const pctReal = (real/meta) * 100;
+  const pctVisual = Math.min(Math.max(pctReal, 0), 100);
+  const color = colorDonut(pctReal);
+  const r = 15.5;
+  const c = 2 * Math.PI * r;
+  const dash = (pctVisual/100) * c;
 
-  sv('val-receita-total',   fmtBRL(cur.recTotal));
-  sv('val-receita-vendas',  fmtBRL(cur.receitaVendas));
-  sv('val-vendas',          fmtN(cur.vendasUniq));
-  sv('val-leads',           fmtN(cur.leadsUniq));
-  sv('val-conv',            fmtP(cur.conv));
-  sv('val-renov',           fmtN(cur.renovs));
-  sv('val-asc',             fmtN(cur.ascs));
-  sv('val-receita-renov',   fmtBRL(cur.recRenov));
-  sv('val-receita-asc',     fmtBRL(cur.recAsc));
+  el.innerHTML = `
+    <div class="kpi-donut-svg">
+      <svg viewBox="0 0 36 36">
+        <circle cx="18" cy="18" r="${r}" fill="none" stroke="#EFEDE9" stroke-width="3.5"></circle>
+        <circle cx="18" cy="18" r="${r}" fill="none" stroke="${color}" stroke-width="3.5"
+                stroke-dasharray="${dash} ${c}" stroke-linecap="round"
+                style="transition:stroke-dasharray 0.9s ease;"></circle>
+      </svg>
+      <div class="kpi-donut-pct" style="color:${color};">${Math.round(pctReal)}%</div>
+    </div>
+    <div class="kpi-donut-label">Da meta</div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DESENHO DO DONUT GRANDE (canais)
+// ═══════════════════════════════════════════════════════════
+const CANAL_COLORS = { pago:'#15A357', organico:'#5B4FCF', sem:'#A8A8B8' };
+const CANAL_NAMES  = { pago:'Pago', organico:'Orgânico', sem:'Sem Rastreamento' };
+
+function renderDonutCanais(cur){
+  const total = cur.pago + cur.organico + cur.sem;
+  const r = 16, c = 2 * Math.PI * r;
+
+  const segs = [
+    { key:'pago',     val: cur.pago,     pct: total ? cur.pago/total : 0 },
+    { key:'organico', val: cur.organico, pct: total ? cur.organico/total : 0 },
+    { key:'sem',      val: cur.sem,      pct: total ? cur.sem/total : 0 },
+  ];
+
+  let acc = 0;
+  let svgSegs = '';
+  segs.forEach(seg => {
+    if (seg.val > 0){
+      const dash = seg.pct * c;
+      const offset = -acc * c;
+      svgSegs += `
+        <circle cx="20" cy="20" r="${r}" fill="none" stroke="${CANAL_COLORS[seg.key]}" stroke-width="5"
+                stroke-dasharray="${dash} ${c-dash}"
+                stroke-dashoffset="${offset}"
+                style="transition:stroke-dasharray 0.9s ease;"></circle>
+      `;
+      acc += seg.pct;
+    }
+  });
+
+  const donutEl = document.getElementById('donut-canais');
+  donutEl.innerHTML = `
+    <svg viewBox="0 0 40 40">
+      <circle cx="20" cy="20" r="${r}" fill="none" stroke="#EFEDE9" stroke-width="5"></circle>
+      ${svgSegs}
+    </svg>
+    <div class="donut-canais-center">
+      <div class="donut-canais-num">${total ? total.toLocaleString('pt-BR') : '0'}</div>
+      <div class="donut-canais-lbl">Vendas</div>
+    </div>
+  `;
+
+  const legend = document.getElementById('canais-legend');
+  legend.innerHTML = segs.map(seg => {
+    const pct = total ? Math.round(seg.pct*100) : 0;
+    return `
+      <div class="canal-item">
+        <div class="canal-dot" style="background:${CANAL_COLORS[seg.key]};"></div>
+        <span class="canal-name">${CANAL_NAMES[seg.key]}</span>
+        <span class="canal-num">${fmtN(seg.val)}</span>
+        <span class="canal-pct">${pct}%</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABELA "PERFORMANCE POR CLOSER"
+// ═══════════════════════════════════════════════════════════
+function renderClosersTable(deals, s, e) {
+  const tbody = document.getElementById('tbl-closer-body');
+  const closerField = detectCloserField(deals);
+
+  if(!closerField){
+    tbody.innerHTML = `<tr class="empty"><td colspan="6">Campo "Closer" não encontrado nos dados — verifique no console as chaves disponíveis.</td></tr>`;
+    return;
+  }
+
+  console.log('[Closer] Campo detectado:', closerField);
+
+  const FECHADOS=['ganho','fechado ganho'];
+  const vendasP = deals.filter(r=>{
+    const est=(r.estagio||'').toLowerCase().trim();
+    return FECHADOS.some(f=>est===f||est.startsWith('fechado ganho')||est==='ganho') && inRange(r.dtfechamento,s,e);
+  });
+  const vendasUnicas=[...new Map(vendasP.map(r=>[r.id_negocio,r])).values()];
+
+  // Agrupa por closer
+  const map = new Map();
+  vendasUnicas.forEach(r=>{
+    const nome = getCloserName(r, closerField) || '— Sem Closer';
+    if(!map.has(nome)) map.set(nome, { nome, vendas:0, receita:0 });
+    const e = map.get(nome);
+    e.vendas++;
+    e.receita += parseMontante(r.montante);
+  });
+
+  const linhas = [...map.values()].sort((a,b)=>b.receita - a.receita);
+  const totVendas  = linhas.reduce((a,r)=>a+r.vendas, 0);
+  const totReceita = linhas.reduce((a,r)=>a+r.receita, 0);
+
+  if(linhas.length === 0){
+    tbody.innerHTML = `<tr class="empty"><td colspan="6">Nenhuma venda nova no período.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = linhas.map(r=>{
+    const pctV = totVendas  ? (r.vendas / totVendas) * 100 : 0;
+    const pctR = totReceita ? (r.receita / totReceita) * 100 : 0;
+    const tm   = r.vendas ? r.receita / r.vendas : 0;
+    return `
+      <tr>
+        <td class="name">${escHtml(r.nome)}</td>
+        <td class="num">${fmtN(r.vendas)}</td>
+        <td class="num">${pctV.toFixed(1).replace('.',',')}%</td>
+        <td class="num">${fmtBRL(r.receita)}</td>
+        <td class="num">${pctR.toFixed(1).replace('.',',')}%</td>
+        <td class="num">${fmtBRL(tm)}</td>
+      </tr>
+    `;
+  }).join('');
+}
+function escHtml(s){return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER PRINCIPAL
+// ═══════════════════════════════════════════════════════════
+function render(cur,prev,hasCmp,curMeta,prevMeta,metasData,s,e) {
+  const D = (c,p)=>hasCmp?dlta(c,p):{b:'flat',l:'—'};
+  const Di= (c,p)=>hasCmp?dltaInverso(c,p):{b:'flat',l:'—'};
+  const vs = hasCmp?'vs período ant.':'';
+
+  // Linha 1 — Receitas
+  sv('val-receita-total',  fmtBRL(cur.recTotal));
+  sv('val-receita-vendas', fmtBRL(cur.receitaVendas));
+  sv('val-receita-ret',    fmtBRL(cur.recRetencao));
 
   sd('delta-receita-total',  D(cur.recTotal,       prev?.recTotal),       vs);
   sd('delta-receita-vendas', D(cur.receitaVendas,  prev?.receitaVendas),  vs);
-  sd('delta-vendas',         D(cur.vendasUniq,     prev?.vendasUniq),     vs);
-  sd('delta-leads',          D(cur.leadsUniq,      prev?.leadsUniq),      vs);
-  sd('delta-conv',           D(cur.conv,           prev?.conv),           vs);
-  sd('delta-renov',          D(cur.renovs,         prev?.renovs),         vs);
-  sd('delta-asc',            D(cur.ascs,           prev?.ascs),           vs);
-  sd('delta-receita-renov',  D(cur.recRenov,       prev?.recRenov),       vs);
-  sd('delta-receita-asc',    D(cur.recAsc,         prev?.recAsc),         vs);
+  sd('delta-receita-ret',    D(cur.recRetencao,    prev?.recRetencao),    vs);
 
-  // CAC e ROAS
-  const spend    = curMeta?.spend || 0;
-  const spendPrev= prevMeta?.spend || 0;
-  const cac  = (spend > 0 && cur.vendasUniq > 0) ? spend / cur.vendasUniq : null;
-  const roas = (spend > 0) ? cur.receitaVendas / spend : null;
-  const cacPrev  = (spendPrev > 0 && prev?.vendasUniq > 0) ? spendPrev / prev.vendasUniq : null;
-  const roasPrev = (spendPrev > 0 && prev?.receitaVendas > 0) ? prev.receitaVendas / spendPrev : null;
+  // Linha 2 — Quantidades
+  sv('val-vendas', fmtN(cur.vendasUniq));
+  sv('val-asc',    fmtN(cur.ascs));
+  sv('val-renov',  fmtN(cur.renovs));
 
-  // CAC — formato R$ N.NNN,NN
-  const cacFmt = cac != null
-    ? 'R$ ' + cac.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})
-    : '—';
-  sv('val-cac', cacFmt);
+  sd('delta-vendas', D(cur.vendasUniq, prev?.vendasUniq), vs);
+  sd('delta-asc',    D(cur.ascs,       prev?.ascs),       vs);
+  sd('delta-renov',  D(cur.renovs,     prev?.renovs),     vs);
 
-  // ROAS — 1 casa decimal
-  sv('val-roas', roas != null ? roas.toFixed(1).replace('.',',') : '—');
+  document.getElementById('sub-vendas-val').textContent = fmtP(cur.conv);
+  document.getElementById('sub-asc-val').textContent    = fmtBRL(cur.recAsc);
+  document.getElementById('sub-renov-val').textContent  = fmtBRL(cur.recRenov);
 
-  sd('delta-cac',  hasCmp && cac!=null && cacPrev!=null  ? dlta(cac, cacPrev)   : {b:'flat',l:'—'}, hasCmp?'vs período ant.':'');
-  sd('delta-roas', hasCmp && roas!=null && roasPrev!=null ? dlta(roas, roasPrev) : {b:'flat',l:'—'}, hasCmp?'vs período ant.':'');
+  // Linha 3 — Investimento, ROAS, CAC
+  const spend     = curMeta?.spend || 0;
+  const spendPrev = prevMeta?.spend || 0;
+  const cac       = (spend > 0 && cur.vendasUniq > 0) ? spend / cur.vendasUniq : null;
+  const roas      = (spend > 0) ? cur.receitaVendas / spend : null;
+  const cacPrev   = (spendPrev > 0 && prev?.vendasUniq > 0) ? spendPrev / prev.vendasUniq : null;
+  const roasPrev  = (spendPrev > 0 && prev?.receitaVendas > 0) ? prev.receitaVendas / spendPrev : null;
 
-  // Canais
-  const tot=cur.vendasUniq||1;
-  const pP=Math.round((cur.pago/tot)*100);
-  const oP=Math.round((cur.organico/tot)*100);
-  const sP=Math.round((cur.sem/tot)*100);
-  sv('canal-pago-val', fmtN(cur.pago));
-  sv('canal-org-val',  fmtN(cur.organico));
-  sv('canal-sem-val',  fmtN(cur.sem));
-  document.getElementById('canal-pago-pct').textContent=cur.vendasUniq?pP+'% das vendas':'—';
-  document.getElementById('canal-org-pct').textContent =cur.vendasUniq?oP+'% das vendas':'—';
-  document.getElementById('canal-sem-pct').textContent =cur.vendasUniq?sP+'% das vendas':'—';
-  setTimeout(()=>{
-    document.getElementById('canal-pago-bar').style.width=pP+'%';
-    document.getElementById('canal-org-bar').style.width =oP+'%';
-    document.getElementById('canal-sem-bar').style.width =sP+'%';
-  },200);
+  sv('val-invest', spend > 0 ? fmtBRL(spend) : '—');
+  sv('val-roas',   roas != null ? roas.toFixed(1).replace('.',',') : '—');
+  sv('val-cac',    cac  != null ? fmtBRLfull(cac) : '—');
 
+  sd('delta-invest', hasCmp && spend > 0 && spendPrev > 0 ? dltaInverso(spend, spendPrev) : {b:'flat',l:'—'}, vs);
+  sd('delta-roas',   hasCmp && roas!=null && roasPrev!=null ? dlta(roas, roasPrev) : {b:'flat',l:'—'}, vs);
+  sd('delta-cac',    hasCmp && cac!=null  && cacPrev!=null  ? dltaInverso(cac, cacPrev) : {b:'flat',l:'—'}, vs);
+
+  // Donuts (só nas 3 receitas)
+  if(metasData && metasData.length){
+    const m = getMetaPorPeriodo(metasData, s, e);
+    renderMiniDonut('donut-recTotal', cur.recTotal,      m.metaTotal);
+    renderMiniDonut('donut-recVN',    cur.receitaVendas, m.metaVN);
+    renderMiniDonut('donut-recRet',   cur.recRetencao,   m.metaRet);
+  } else {
+    renderMiniDonut('donut-recTotal', 0, 0);
+    renderMiniDonut('donut-recVN',    0, 0);
+    renderMiniDonut('donut-recRet',   0, 0);
+  }
+
+  // Donut + legenda canais
+  renderDonutCanais(cur);
+
+  // Footer dates
   const now=new Date();
-  document.getElementById('refresh-chip').textContent='Atualizado '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('last-update').textContent='Última atualização: '+now.toLocaleString('pt-BR');
+  document.getElementById('last-update').innerHTML =
+    `Última atualização dos dados: <strong>${now.toLocaleString('pt-BR')}</strong>`;
 }
 
-// ── LOAD ──
+// ═══════════════════════════════════════════════════════════
+// LOAD
+// ═══════════════════════════════════════════════════════════
 async function loadData() {
   document.getElementById('error-banner').style.display='none';
   _deals=null;_utms=null;_cs=null;
@@ -1145,42 +1418,35 @@ async function loadData() {
     const prev=p.hasCmp?calcMetrics(deals,utms,cs,p.ps,p.pe):null;
     const curMeta=calcMetaMetrics(metaads,p.s,p.e);
     const prevMeta=p.hasCmp?calcMetaMetrics(metaads,p.ps,p.pe):null;
-    render(cur,prev,p.hasCmp,curMeta,prevMeta);
-    renderMetas(cur, p.s, p.e, metasData);
+    render(cur,prev,p.hasCmp,curMeta,prevMeta,metasData,p.s,p.e);
+    renderClosersTable(deals, p.s, p.e);
   } catch(err) {
     console.error(err);
     document.getElementById('error-banner').style.display='block';
     document.getElementById('error-detail').textContent=err.message;
-    document.getElementById('refresh-chip').textContent='Erro';
   }
 }
-
 function applyFilter(){loadData();}
 
-// Horários de atualização automática
+// ═══════════════════════════════════════════════════════════
+// AGENDAMENTO DA PRÓXIMA ATUALIZAÇÃO
+// ═══════════════════════════════════════════════════════════
 const UPDATE_HOURS = [7, 11, 16, 23];
 
 function msUntilNextUpdate() {
   const now = new Date();
   const h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
   const nowMins = h * 60 + m;
-  // Próximo horário hoje
   for (const uh of UPDATE_HOURS) {
     const uhMins = uh * 60;
-    if (uhMins > nowMins) {
-      return ((uhMins - nowMins) * 60 - s) * 1000;
-    }
+    if (uhMins > nowMins) return ((uhMins - nowMins) * 60 - s) * 1000;
   }
-  // Primeiro horário de amanhã (7h)
   const minsUntilMidnight = (24 * 60 - nowMins) * 60 - s;
   const minsFrom7 = UPDATE_HOURS[0] * 60 * 60;
   return (minsUntilMidnight + minsFrom7) * 1000;
 }
-
 function scheduleNextUpdate() {
   const ms = msUntilNextUpdate();
-  const next = new Date(Date.now() + ms);
-  console.log('Próxima atualização:', next.toLocaleTimeString('pt-BR'));
   updateNextUpdateDisplay();
   setTimeout(() => {
     _deals=null;_utms=null;_cs=null;_metaads=null;_metasData=null;
@@ -1188,16 +1454,84 @@ function scheduleNextUpdate() {
     scheduleNextUpdate();
   }, ms);
 }
-
 function updateNextUpdateDisplay() {
   const ms = msUntilNextUpdate();
   const next = new Date(Date.now() + ms);
   const el = document.getElementById('next-update');
-  if (el) el.textContent = 'Próxima atualização: ' + next.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  if (el) el.innerHTML = `Próxima atualização dos dados: <strong>${next.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</strong>`;
 }
 
+// ═══════════════════════════════════════════════════════════
+// FLATPICKR — date picker estilo Looker (range + presets)
+// ═══════════════════════════════════════════════════════════
+function startOfMonth(d){return new Date(d.getFullYear(),d.getMonth(),1);}
+function endOfMonth(d){return new Date(d.getFullYear(),d.getMonth()+1,0);}
+function startOfYear(d){return new Date(d.getFullYear(),0,1);}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x;}
+function addMonths(d,n){return new Date(d.getFullYear(),d.getMonth()+n,d.getDate());}
+function yesterday(){return addDays(new Date(),-1);}
+
+const PRESETS = [
+  { id:'today',     label:'Hoje',          fn: ()=>{ const d=new Date(); return [d,d]; } },
+  { id:'yest',      label:'Ontem',         fn: ()=>{ const d=yesterday(); return [d,d]; } },
+  { id:'7d',        label:'Últimos 7 dias',fn: ()=>[addDays(yesterday(),-6), yesterday()] },
+  { id:'30d',       label:'Últimos 30 dias',fn:()=>[addDays(yesterday(),-29), yesterday()] },
+  { id:'mtd',       label:'Mês atual',     fn: ()=>[startOfMonth(new Date()), yesterday()] },
+  { id:'lastmonth', label:'Mês anterior',  fn: ()=>{ const ref=addMonths(new Date(),-1); return [startOfMonth(ref), endOfMonth(ref)]; } },
+  { id:'ytd',       label:'Ano atual',     fn: ()=>[startOfYear(new Date()), yesterday()] },
+];
+
+function buildPresetsBar(){
+  const bar = document.createElement('div');
+  bar.className = 'fp-presets';
+  PRESETS.forEach(p=>{
+    const b = document.createElement('button');
+    b.type='button';
+    b.className='fp-preset';
+    b.textContent=p.label;
+    b.onclick = ()=>{
+      const [s,e] = p.fn();
+      _fp.setDate([s,e], true);
+    };
+    bar.appendChild(b);
+  });
+  return bar;
+}
+
+function setupFlatpickr(){
+  const input = document.getElementById('f-range');
+  _fp = flatpickr(input, {
+    mode:'range',
+    locale:'pt',
+    dateFormat:'d/m/Y',
+    defaultDate:[_rangeStart, _rangeEnd],
+    maxDate:'today',
+    showMonths:2,
+    onReady:(_,__,inst)=>{
+      const cal = inst.calendarContainer;
+      const presets = buildPresetsBar();
+      cal.insertBefore(presets, cal.firstChild);
+    },
+    onClose:(selectedDates)=>{
+      if(selectedDates.length === 2){
+        _rangeStart = selectedDates[0];
+        _rangeEnd   = selectedDates[1];
+      } else if(selectedDates.length === 1){
+        _rangeStart = selectedDates[0];
+        _rangeEnd   = selectedDates[0];
+        _fp.setDate([_rangeStart,_rangeEnd], false);
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
 function initDashboard(){
+  injectIcons();
   setDefaultDates();
+  setupFlatpickr();
   getPeriodos();
   loadData();
   scheduleNextUpdate();
